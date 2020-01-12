@@ -2,7 +2,7 @@
 <VirtualInUdp Title="Wolf ISM8" Comment="by Wolf ISM8 Loxbery Plugin" Address="" Port="<TMPL_VAR multicast_port>">
 
 <TMPL_LOOP NAME=DATA>
-        <VirtualInUdpCmd Title="<TMPL_VAR NAME>" Comment="" Address="" Check="<TMPL_VAR ID>;\v" Signed="true" Analog="<TMPL_VAR ANALOG>" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="0" MaxVal="2147483647"/>
+        <VirtualInUdpCmd Title="<TMPL_VAR NAME>" Comment="" Address="" Check="<TMPL_VAR ID>;\v" Signed="true" Analog="1" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="0" MaxVal="2147483647"/>
 </TMPL_LOOP>
 
 </VirtualInUdp>

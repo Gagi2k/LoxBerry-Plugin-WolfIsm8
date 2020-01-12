@@ -156,10 +156,6 @@ if ($R::form eq "1" || !$R::form) {
       my %d;
       $d{ID} = $datenpunkte[$i][0];
       $d{NAME} = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
-      $d{ANALOG} = "true";
-      if (grep( /^$datenpunkte[$i][3]$/, @digitalTypes )) {
-          $d{ANALOG} = "false";
-      }
 
       push(@data, \%d);
   }
