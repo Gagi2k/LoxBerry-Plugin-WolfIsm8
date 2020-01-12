@@ -1,0 +1,53 @@
+#!/bin/bash
+# description: Start or stop the Wolf ISM8i server
+# script by Dr. Mugur Dietrich
+
+### BEGIN INIT INFO
+# Provides:             wolf_ism8i.pl
+# Required-Start:
+# Required-Stop:
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    Wolf ISM8i server
+### END INIT INFO
+
+
+. $LBHOMEDIR/libs/bashlib/loxberry_log.sh
+
+BINPATH=${LBPBIN}/wolfism8
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+  'start')
+    echo "Starting Wolf ISM8i server"
+    perl $BINPATH/wolf_ism8i.pl &
+    RETVAL=$?
+    ;;
+  'stop')
+    echo "Stopping Wolf ISM8i server"
+    pkill -f $BINPATH/wolf_ism8i.pl
+    RETVAL=$?
+    ;;
+  'restart')
+    echo "Restarting Wolf ISM8i server"
+    pkill -f wolf_ism8i.pl
+    RETVAL=$?
+	sleep 1
+    perl $BINPATH/wolf_ism8i.pl &
+    RETVAL=$?
+    ;;
+  'status')
+    cnt=`ps -ef | grep "wolf_ism8i.pl" | grep -v grep | wc -l`
+    if [ "$cnt" -eq "0" ] ; then
+        echo "Wolf ISM8i server is not running"
+    else
+        echo "Wolf ISM8i server is running"
+    fi
+    ;;
+  *)
+    echo "Usage: /etc/init.d/wolfserver {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit $RETVAL

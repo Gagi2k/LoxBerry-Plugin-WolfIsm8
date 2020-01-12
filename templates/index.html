@@ -1,0 +1,187 @@
+<TMPL_IF FORM1>
+<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi?form=1">
+        <input type="hidden" name="saveformdata1" value="1">
+                <table class="formtable" border="0" width="100%" cellpadding="10">
+                        <tr>
+                                <td colspan=3 width="75%" valign="middle">
+                                        <h2><TMPL_VAR SETTINGS.LABEL_SETTINGS></h2>
+                                </td>
+                                <td align="right">
+                                        &nbsp;
+                                </td>
+
+                        <tr>
+                                <td width="25%">
+                                        <label id="labellog"><TMPL_VAR SETTINGS.LABEL_ENABLE></label>
+                                </td>
+                                <td width="50%">
+                                    <fieldset>
+                                    <TMPL_VAR ENABLE>
+                                    </fieldset>
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_ENABLE></font>
+                                </td>
+                        </tr>
+
+                        <tr>
+                                <td width="25%">
+                                        <label id="labelversion"><TMPL_VAR SETTINGS.LABEL_VERSION></label>
+                                </td>
+                                <td width="50%">
+                                    <fieldset>
+                                    <TMPL_VAR VERSION>
+                                    </fieldset>
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_VERSION></font>
+                                </td>
+                        </tr>
+
+                        </tr>
+                                <td width="25%">
+                                        <label id="labeludp"><TMPL_VAR SETTINGS.LABEL_UDPPORT></label>
+                                </td>
+                                <td width="50%">
+                                        <input id="udpport" name="udpport" type="text" data-validation-rule="special:number-min-max-value:1:65000" class="textfield" value="<TMPL_VAR ism8i_port>"
+                                        data-validation-error-msg="<TMPL_VAR SETTINGS.ERR_UDPPORT>">
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_UDPPORT></font>
+                                </td>
+                        </tr>
+
+                        <tr>
+                                <td width="25%">
+                                        <label id="labellog"><TMPL_VAR SETTINGS.LABEL_DP_LOG></label>
+                                </td>
+                                <td width="50%">
+                                    <fieldset>
+                                    <TMPL_VAR DP_LOG>
+                                    </fieldset>
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_DP_LOG></font>
+                                </td>
+                        </tr>
+
+                        <tr>
+                                <td colspan=3 width="75%" valign="middle">
+                                        <h2><TMPL_VAR SETTINGS.LABEL_MS></h2>
+                                </td>
+                                <td align="right">
+                                        &nbsp;
+                                </td>
+                        </tr>
+                        <tr>
+                                <td width="25%">
+                                        <label id="labelms"><TMPL_VAR SETTINGS.LABEL_MS></label>
+                                </td>
+                                <td width="50%">
+                                        <fieldset>
+                                        <TMPL_VAR MS>
+                                        </fieldset>
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_MS></font>
+                                </td>
+                        </tr>
+                        <tr>
+                                <td width="25%">
+                                        <label id="labelmsudp"><TMPL_VAR SETTINGS.LABEL_MS_UDPPORT></label>
+                                </td>
+                                <td width="50%">
+                                        <input id="msudpport" name="msudpport" type="text" data-validation-rule="special:number-min-max-value:1:65000" class="textfield" value="<TMPL_VAR multicast_port>"
+                                        data-validation-error-msg="<TMPL_VAR SETTINGS.ERR_UDPPORT>">
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_MS_UDPPORT></font>
+                                </td>
+                        </tr>
+                        <tr>
+                                <td colspan=4>
+                                &nbsp;
+                                </td>
+                        </tr>
+                </table>
+
+                <br><br>
+
+        <p>
+                &nbsp;
+        </p>
+        <p>
+                <center>
+                        <a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="./index.cgi?form=1"><TMPL_VAR SETTINGS.BUTTON_CANCEL></a>
+                        <button type="submit" form="main_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check"><TMPL_VAR SETTINGS.BUTTON_SAVE></button>
+                </center>
+        </p>
+
+</form>
+
+<script>
+// Add some attributes PERL::CGI doesn't provide
+$('select[name=cron').attr('data-mini','true');
+$('#dplog').attr('data-role','flipswitch');
+$('#enable').attr('data-role','flipswitch');
+// Form Validation
+$( document ).ready(function()
+{
+        validate_enable('#udpport');
+        validate_enable('#msudpport');
+});
+</script>
+</TMPL_IF>
+
+<TMPL_IF FORM2>
+<center>
+        <table border=0>
+        <tr>
+                <td align="center">
+                        <a download="input.xml" title="<TMPL_VAR SETTINGS.DOWNLOAD_INPUT>"
+                        data-role="button" href="<TMPL_VAR NAME="VI_HTTP_URL">"><TMPL_VAR SETTINGS.DOWNLOAD_INPUT></a>
+                </td>
+        </tr>
+        </table>
+</center>
+</TMPL_IF>
+
+<TMPL_IF SAVE>
+<center>
+        <table border=0>
+        <tr>
+                <td align="center">
+                <h2><TMPL_VAR SETTINGS.HINT_OK></h2>
+                <p>
+                <TMPL_VAR SETTINGS.OK_SETTINGS_SAVED>
+                </p>
+                </td>
+        </tr>
+        <tr>
+                <td align="center">
+                <p>
+                <a id="btnok" data-role="button" data-inline="true" data-mini="true" data-icon="check" href="./index.cgi?form=<TMPL_VAR FORMNO>"><TMPL_VAR SETTINGS.BUTTON_OK></a>
+                </p>
+                </td>
+        </tr>
+        </table>
+</center>
+</TMPL_IF>

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# This is a sample DAEMON file which is started at boottime._
+# CAUTION! MAKE SURE YOUR SCRIPT EXITS CLEANLY! It is a good idea
+# to start your daemon as background process. If you do something wrong here
+# your user's systems may hang forever during boottime!
+
+# Will be executed as user "root".
+
+# Name this file "daemon" in your plugin-archive. It will be renamed to NAME
+# during installation
+
+pluginname=$(basename $0 .sh)
+
+if [ -x /usr/bin/logger ]; then
+    /usr/bin/logger "loxberry-plugin-$pluginname - DAEMON Script from Wolf ISM8 Plugin"
+fi
+
+enabled=`awk -F'[ ]' '/enable/{print $2}' $LBPCONFIG/$pluginname/wolf_ism8i.conf`
+
+if [ $enabled -eq 1 ]; then
+    if [ -x /usr/bin/logger ]; then
+            /usr/bin/logger "loxberry-plugin-$pluginname - Starting olf ISM8 Server"
+    fi
+    # Enable
+    su loxberry -c $LBHOMEDIR/bin/plugins/$pluginname/wolf_server start > /dev/null 2>&1
+fi
+
+# Exit with Status 0
+exit 0
