@@ -561,7 +561,7 @@ sub showDatenpunkte
 sub writeDatenpunkteToLog
 #Devloper Sub zur Kontrolle des eingelesenen CSV Files
 {
-   my $filename = $script_path."/log/wolf_ism8i_datenpunkte.log";
+   my $filename = $lbplogdir."/wolf_ism8i_datenpunkte.log";
    open(my $fh, '>:encoding(UTF-8)', $filename) or die "Could not open file '$filename' $!";
    print $fh "\n";
    foreach my $o (@datenpunkte)
