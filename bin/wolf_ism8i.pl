@@ -144,6 +144,13 @@ sub send_IGMPmessage($)
 }
 
 
+sub createPullRequest()
+{
+    my @a = ("06","20","F0","80","00","16","04","00","00","00","F0","D0");
+    if ($verbose == 3) { add_to_log("Pull Request: ".join(" ", @a)); }
+    return pack("H2" x 17, @a);
+}
+
 sub start_WolfServer
 #Startet einen blocking Server(Loop) an dem sich das Wolf ISM8i Modul verbinden und seine Daten schicken kann. 
 {
@@ -169,6 +176,10 @@ sub start_WolfServer
    $hash{ism8i_ip} = $client_address;
    my $client_port = $client_socket->peerport();
    add_to_log("   Verbindung eines ISM8i Moduls von $client_address:$client_port");
+
+   add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
+   my $pull_request = createPullRequest();
+   if (length($pull_request) > 0) { $client_socket->send($pull_request); }
  
    while(1)
       {
