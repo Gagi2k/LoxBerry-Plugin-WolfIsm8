@@ -11,6 +11,8 @@
 ###########################################################################################
 ###########################################################################################
 
+use List::MoreUtils qw(first_index);
+use diagnostics;
 use LoxBerry::System;
 #my $lbpconfigdir = dirname(__FILE__);
 #my $lbplogdir = dirname(__FILE__)."/log";
@@ -34,6 +36,7 @@ binmode(STDOUT, ":utf8");
 sub start_IGMPserver;
 sub send_IGMPmessage($);
 sub start_WolfServer;
+sub createRequest($$);
 sub create_answer($);
 sub create_logdir;
 sub log_msg_data($$);
@@ -56,6 +59,7 @@ sub showDatenpunkte;
 sub writeDatenpunkteToLog;
 sub getDatenpunkt($$);
 sub getCsvResult($$);
+sub parseInput($);
 sub pdt_knx_float($);
 sub pdt_long($);
 sub pdt_time($);
@@ -65,7 +69,7 @@ sub pdt_date($);
 ## Globale Variablen: #######################################################
 
 my $script_path = dirname(__FILE__);
-my $verbose = 0; # 0 = nichts, 1 = Telegrammauswertung, 3 = alles
+my $verbose = 3; # 0 = nichts, 1 = Telegrammauswertung, 3 = alles
 my $fw_actualize = time - 1;
 my $geraet_max_length = 0;
 my @datenpunkte;
@@ -96,7 +100,6 @@ open(my $log_fh, '>>', $lbplogdir."/wolf_ism8i.log") or die "Could not open/writ
 
 add_to_log("");
 add_to_log("############ Strate Wolf ISM8i Auswertungs-Modul ############");
-
 
 #Subs aufrufen:
 loadConfig();
@@ -143,6 +146,33 @@ sub send_IGMPmessage($)
    if ($ok == 0) { print $ok."\n"; }
 }
 
+#
+# ID, value
+sub createRequest($$)
+{
+    my $dp_id = $_[0];
+    my $dp_state = "00";
+
+    my $dp_value = $_[1];
+    my $dp_length = length($dp_value);
+
+    # Building the msg from behind
+    my @obj_header = ("F0","C1");
+    my $obj_frame = pack("H2 H2 n n n C C ", @obj_header, $dp_id, 1, $dp_id, 0 , $dp_length);
+
+    my @conn_header = ("04","00","00","00");
+    my $conn_frame = pack("H2" x 4, @conn_header);
+
+    my @knx_header = ("06","20","F0","80");
+    my $knx_frame = pack("H2" x 4 ."n", @knx_header, 6 + 4 + length($obj_frame) + $dp_length);
+
+    my $request = $knx_frame.$conn_frame.$obj_frame.$dp_value;
+
+    if ($verbose == 3) { add_to_log("Sende Daten (".length($request)." Bytes):"); }
+    if ($verbose == 3) { add_to_log(join(" ", unpack("H2" x length($request), $request))); }
+
+    return $request;
+}
 
 sub createPullRequest()
 {
@@ -177,9 +207,9 @@ sub start_WolfServer
    my $client_port = $client_socket->peerport();
    add_to_log("   Verbindung eines ISM8i Moduls von $client_address:$client_port");
 
-   add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
-   my $pull_request = createPullRequest();
-   if (length($pull_request) > 0) { $client_socket->send($pull_request); }
+#   add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
+#   my $pull_request = createPullRequest();
+#   if (length($pull_request) > 0) { $client_socket->send($pull_request); }
  
    while(1)
       {
@@ -712,6 +742,101 @@ sub getCsvResult($$)
    return $result;   
 }
 
+# "<ID> <VALUE>"
+# test parseInput("104;-30");
+sub parseInput($)
+{
+    my @input = split /;/, $_[0];
+    my $id = $input[0];
+    my $data = $input[1];
+    my $geraet = getDatenpunkt($id, 1);
+    my $datatype = getDatenpunkt($id, 3);
+    my $writeable = getDatenpunkt($id, 4) =~ m/In/;
+    if (!$writeable) {
+        add_to_log("Datenpunkt $id kann nicht beschrieben werden!");
+        return;
+    }
+
+    add_to_log("VALUE: ".$data);
+
+    my $enc_value;
+
+    if ($datatype eq "DPT_Switch" ||
+        $datatype eq "DPT_Bool" ||
+        $datatype eq "DPT_Enable" ||
+        $datatype eq "DPT_OpenClose") {
+        if ($data < 0 || $data > 1) {
+            add_to_log("Invalid input!");
+            return;
+        }
+        $enc_value = pack("C", $data);
+    }
+    elsif ($datatype eq "DPT_Scaling") {
+        $enc_value = pack("C", round($data / 100 * 255));
+    }
+    elsif ($datatype eq "DPT_Value_Temp" ||
+           $datatype eq "DPT_Value_Tempd" ||
+           $datatype eq "DPT_Value_Pres" ||
+           $datatype eq "DPT_Power" ||
+           $datatype eq "DPT_Value_Volume_Flow")
+    {
+        $enc_value = to_pdt_float($data);
+    }
+    elsif ($datatype eq "DPT_TimeOfDay")
+    {
+        $enc_value = to_pdt_time($data);
+    }
+    elsif ($datatype eq "DPT_Date")
+    {
+        $enc_value = to_pdt_date($data);
+    }
+    elsif ($datatype eq "DPT_FlowRate_m3/h")
+    {
+        $enc_value = to_pdt_long($data * 10000);
+    }
+    elsif ($datatype eq "DPT_ActiveEnergy" ||
+           $datatype eq "DPT_ActiveEnergy_kWh") {
+        $enc_value = to_pdt_long($data);
+    }
+    elsif ($datatype eq "DPT_HVACMode")  {
+        if ($geraet =~ /Heizkreis/ or $geraet =~ /Mischerkreis/) {
+            if ($data < 0 || $data > 3) {
+                add_to_log("Invalid input!");
+                return;
+            }
+            $enc_value = pack("C", $data);
+        } elsif ($geraet =~ /CWL/) {
+            if (!($data == 0 || $data == 1 || $data == 3)) {
+                add_to_log("Invalid input!");
+                return;
+            }
+            $enc_value = pack("C", $data);
+        } else {
+            add_to_log("errr");
+            add_to_log("Invalid input!");
+            return;
+        }
+    }
+    elsif ($datatype eq "DPT_DHWMode") {
+        if ($geraet =~ /Warmwasser/) {
+            if (!($data == 0 || $data == 2 || $data == 4)) {
+                add_to_log("Invalid input!");
+                return;
+            }
+            $enc_value = pack("C", $data);
+        } else {
+            add_to_log("Invalid input!");
+            return;
+        }
+    }
+    else {
+        add_to_log("Invalid type!");
+        return;
+    }
+
+    my $request = createRequest($id, $enc_value);
+}
+
 sub pdt_knx_float($)
 {
 # Format: 
@@ -734,6 +859,32 @@ sub pdt_knx_float($)
    return (0.01 * $m) * (2 ** $e);
 }
 
+sub to_pdt_float($)
+{
+    my $mant = int(100 * $_[0]);
+    my $exp = 0;
+    while($mant < -2047 || $mant > 2047) {
+        $mant = int($mant / 2);
+        $exp += 1;
+    }
+    my $sign = 0;
+    if ($mant < 0) {
+        $sign = 1;
+        $mant = -$mant;
+        $mant = (~$mant + 1) & 0x7FF;
+    }
+
+    $exp = $exp << 11;
+    $sign = $sign << 15;
+    my $val = $mant | $exp | $sign;
+#    printf ("mant %10b %3d\n",$mant,$mant);
+#    printf ("exp %10b %3d\n",$exp,$exp);
+#    printf ("sign %10b %3d\n",$sign,$sign);
+#    printf ("val %10b %3d\n",$val,$val);
+
+    return pack("n", $val);
+}
+
 
 sub pdt_long($)
 {
@@ -751,6 +902,10 @@ sub pdt_long($)
    return $r;
 }
 
+sub to_pdt_long($)
+{
+    return pack("N", $_[0]);
+}
 
 sub pdt_time($)
 {
@@ -772,6 +927,37 @@ sub pdt_time($)
    return sprintf("%s %d:%d:%d", $weekdays[$weekday], $hour, $min, $sec);
 }
 
+sub to_pdt_time($)
+{
+    my @d = split / /, $_[0];
+    my @h = split / /, $d[1];
+    my $day = $d[0];
+    my $hour = $h[0];
+    my $min = $h[1];
+    my $sec = $h[2];
+    my @weekdays = ["","Mo","Di","Mi","Do","Fr","Sa","So"];
+
+    $day = first_index { $_ eq $day } @weekdays;
+    if ($day == 0) {
+        add_to_log("Couldn't parse day. Possibe values: ".join(" ",@weekdays));
+        return -1;
+    }
+    if ($hour < 0 || $hour > 23) {
+        add_to_log("Invalid hour: $hour");
+        return -1;
+    }
+    if ($min < 0 || $min > 59) {
+        add_to_log("Invalid minute: $min");
+        return -1;
+    }
+    if ($sec < 0 || $sec > 59) {
+        add_to_log("Invalid seconds: $sec");
+        return -1;
+    }
+    $day = $day << 5;
+    return pack("C C C", $day | $hour, $min, $sec);
+}
+
 sub pdt_date($)
 {
 # 3 byte Date
@@ -788,6 +974,27 @@ sub pdt_date($)
    my $year = $b3 & 0x7f;
    if ($year < 90) { $year += 2000; } else { $year += 1900; }
    return sprintf("%02d.%02d.%04d", $day, $mon, $year);
+}
+
+sub to_pdt_date($)
+{
+    my @d = split /\./, $_[0];
+    my $day = $d[0];
+    my $mon = $d[1];
+    my $year = $d[2];
+    if ($day < 0 || $day > 31) {
+        add_to_log("Invalid day: $day");
+        return -1;
+    }
+    if ($mon < 0 || $mon > 12) {
+        add_to_log("Invalid month: $mon");
+        return -1;
+    }
+    if ($year < 0 || $year > 99) {
+        add_to_log("Invalid year: $year");
+        return -1;
+    }
+    return pack("C C C",$day, $mon, $year);
 }
 
 sub getBitweise($$$)
