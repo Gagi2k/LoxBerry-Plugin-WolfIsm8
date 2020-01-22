@@ -12,6 +12,7 @@
 ###########################################################################################
 
 use List::MoreUtils qw(first_index);
+use IO::Select;
 use diagnostics;
 use LoxBerry::System;
 #my $lbpconfigdir = dirname(__FILE__);
@@ -36,6 +37,10 @@ binmode(STDOUT, ":utf8");
 sub start_IGMPserver;
 sub send_IGMPmessage($);
 sub start_WolfServer;
+sub start_CommandServer;
+sub start_event_loop($$);
+sub read_command_messages($$);
+sub read_wolf_messages($);
 sub createRequest($$);
 sub create_answer($);
 sub create_logdir;
@@ -112,7 +117,7 @@ writeDatenpunkteToLog();
 
 start_IGMPserver();
 
-start_WolfServer();
+start_event_loop(start_WolfServer(), start_CommandServer());
 
 # STDOUT/STDERR wiederherstellen
 close $log_fh;
@@ -181,7 +186,27 @@ sub createPullRequest()
     return pack("H2" x 17, @a);
 }
 
-sub start_WolfServer
+sub start_CommandServer()
+#Startet einen blocking Server(Loop) an dem sich das Wolf ISM8i Modul verbinden und seine Daten schicken kann.
+{
+   # auto-flush on socket
+   $| = 1;
+
+   # creating a listening socket
+   my $socket = new IO::Socket::INET (
+      LocalHost => '0.0.0.0',
+      LocalPort => 9999,
+      Proto => 'tcp',
+      Listen => 5,
+      Reuse => 1
+   );
+   die "Cannot create socket $!\n" unless $socket;
+   add_to_log("Server wartet auf Loxone Verbindung auf Port $hash{port}:");
+
+   return $socket;
+}
+
+sub start_WolfServer()
 #Startet einen blocking Server(Loop) an dem sich das Wolf ISM8i Modul verbinden und seine Daten schicken kann. 
 {
    # auto-flush on socket
@@ -197,50 +222,124 @@ sub start_WolfServer
    );
    die "Cannot create socket $!\n" unless $socket;
    add_to_log("Server wartet auf ISM8i Verbindung auf Port $hash{port}:");
- 
-   # waiting for a new client connection
-   my $client_socket = $socket->accept();
- 
-   # get information about a newly connected client
-   my $client_address = $client_socket->peerhost();
-   $hash{ism8i_ip} = $client_address;
-   my $client_port = $client_socket->peerport();
-   add_to_log("   Verbindung eines ISM8i Moduls von $client_address:$client_port");
 
-#   add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
-#   my $pull_request = createPullRequest();
-#   if (length($pull_request) > 0) { $client_socket->send($pull_request); }
+   return $socket;
+}
+
+sub start_event_loop($$) {
+    my $wolf_socket = $_[0];
+    my $command_socket = $_[1];
+    my $wolf_client;
+    my $command_client;
+
+    my $read_select  = IO::Select->new();
+
+    $read_select->add($wolf_socket);
+    $read_select->add($command_socket);
+
+    while (1) {
+
+        ## No timeout specified (see docs for IO::Select).  This will block until a TCP
+        ## client connects or we have data.
+        my @read = $read_select->can_read();
+
+        foreach my $read (@read) {
+            if ($read == $wolf_socket) {
+                if (!$wolf_client) {
+                    # waiting for a new client connection
+                    $wolf_client = $wolf_socket->accept();
+
+                    # get information about a newly connected client
+                    my $client_address = $wolf_client->peerhost();
+                    $hash{ism8i_ip} = $wolf_client;
+                    my $client_port = $wolf_client->peerport();
+                    add_to_log("   Verbindung eines ISM8i Moduls von $client_address:$client_port");
+
+                    #   add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
+                    #   my $pull_request = createPullRequest();
+                    #   if (length($pull_request) > 0) { $client_socket->send($pull_request); }
+                }
+                $read_select->add($wolf_client);
+
+                read_wolf_messages($wolf_client);
+            }
+
+            if ($read == $wolf_client) {
+                read_wolf_messages($wolf_client);
+            }
+
+            if ($read == $command_socket) {
+                if (!$command_client) {
+                    # waiting for a new client connection
+                    $command_client = $command_socket->accept();
+
+                    # get information about a newly connected client
+                    my $client_address = $command_client->peerhost();
+                    my $client_port = $command_client->peerport();
+                    add_to_log("   Verbindung eines Clients von $client_address:$client_port");
+                }
+
+                read_command_messages($command_client, $wolf_client);
+
+                # Close the client connection after every command. The commands are short enough
+                # to be read in one go.
+                shutdown($command_client, 1);
+                $command_client = undef;
+            }
+        }
+    }
+
+    if ($wolf_client) {
+        # notify client that response has been sent
+        shutdown($wolf_client, 1);
+
+        $wolf_socket->close();
+    }
+}
+
+sub read_command_messages($$) {
+   my $client_socket = $_[0];
+   my $ism8_socket = $_[1];
+
+   # read up to 4096 characters from the connected client
+   my $rec_data = "";
+   $client_socket->recv($rec_data, 4096);
+
+   if (!$ism8_socket) {
+        add_to_log("No ISM8 connection, ignoring command!");
+        return;
+   }
+
+   add_to_log("Read command $rec_data");
+   my $send_data = parseInput($rec_data);
+   $ism8_socket->send($send_data);
+}
  
-   while(1)
+sub read_wolf_messages($) {
+   my $client_socket = $_[0];
+ 
+   # read up to 4096 characters from the connected client
+   my $rec_data = "";
+   $client_socket->recv($rec_data, 4096);
+
+   if ($verbose == 3) { add_to_log("Daten Empfang (".length($rec_data)." Bytes):"); }
+   if ($verbose == 3) { add_to_log(join(" ", unpack("H2" x length($rec_data), $rec_data))); }
+
+   my $starter = chr(0x06).chr(0x20).chr(0xf0).chr(0x80);
+   my @fields = split(/$starter/, $rec_data);
+   foreach my $r (@fields)
       {
-       # read up to 4096 characters from the connected client
-       my $rec_data = "";
-       $client_socket->recv($rec_data, 4096);
-	   
-       if ($verbose == 3) { add_to_log("Daten Empfang (".length($rec_data)." Bytes):"); }
-       if ($verbose == 3) { add_to_log(join(" ", unpack("H2" x length($rec_data), $rec_data))); }
-	   
-	   my $starter = chr(0x06).chr(0x20).chr(0xf0).chr(0x80);
-       my @fields = split(/$starter/, $rec_data);
-       foreach my $r (@fields)
-	      {
-		   if (length($r) > 0)
-		     {
-		      $r = $starter.$r;
-	     
-              # Falls ein SetDatapointValue.Req gesendet wurde wird mit einem SetDatapointValue.Res als Bestätigung geantwortet.
-              my $send_data = create_answer($r);
-	          if (length($send_data) > 0) { $client_socket->send($send_data); }
-			  
-	          decodeTelegram($r);
-         	 }	 
-		  }
+       if (length($r) > 0)
+         {
+          $r = $starter.$r;
+
+          # Falls ein SetDatapointValue.Req gesendet wurde wird mit einem SetDatapointValue.Res als Bestätigung geantwortet.
+          my $send_data = create_answer($r);
+          if (length($send_data) > 0) { $client_socket->send($send_data); }
+
+            decodeTelegram($r);
+          }
       }
-
-   # notify client that response has been sent
-   shutdown($client_socket, 1);
-
-   $socket->close();
 }
 
 
@@ -749,6 +848,10 @@ sub parseInput($)
     my @input = split /;/, $_[0];
     my $id = $input[0];
     my $data = $input[1];
+    if (scalar(@input) != 2) {
+        add_to_log("Invalid command, expected the format: <ID>;<VALUE>");
+        return;
+    }
     my $geraet = getDatenpunkt($id, 1);
     my $datatype = getDatenpunkt($id, 3);
     my $writeable = getDatenpunkt($id, 4) =~ m/In/;
@@ -834,7 +937,7 @@ sub parseInput($)
         return;
     }
 
-    my $request = createRequest($id, $enc_value);
+    return createRequest($id, $enc_value);
 }
 
 sub pdt_knx_float($)
