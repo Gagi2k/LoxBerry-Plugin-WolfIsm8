@@ -1028,7 +1028,7 @@ sub pdt_time($)
    my $b2 = ($_[0] & 0x00ff00) >> 8;
    my $b3 = ($_[0] & 0x0000ff);
    my $weekday = ($b1  & 0xe0) >> 5;
-   my @weekdays = ["","Mo","Di","Mi","Do","Fr","Sa","So"];
+   my @weekdays = ("","Mo","Di","Mi","Do","Fr","Sa","So");
    my $hour = $b1 & 0x1f;
    my $min = $b2 & 0x3f;
    my $sec = $b3 & 0x3f;
@@ -1043,7 +1043,7 @@ sub to_pdt_time($)
     my $hour = $h[0];
     my $min = $h[1];
     my $sec = $h[2];
-    my @weekdays = ["","Mo","Di","Mi","Do","Fr","Sa","So"];
+    my @weekdays = ("","Mo","Di","Mi","Do","Fr","Sa","So");
 
     $day = first_index { $_ eq $day } @weekdays;
     if ($day == 0) {
