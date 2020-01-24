@@ -83,6 +83,7 @@ my $igmp_sock;
 my %hash = (
              ism8i_ip => '?.?.?.?' ,
              port     => '12004' ,
+             inport   => '12005' ,
              fw       => '1.5' ,
              mcip     => '239.7.7.77' ,
              mcport   => '35353' ,
@@ -195,13 +196,13 @@ sub start_CommandServer()
    # creating a listening socket
    my $socket = new IO::Socket::INET (
       LocalHost => '0.0.0.0',
-      LocalPort => 9999,
+      LocalPort => $hash{inport},
       Proto => 'tcp',
       Listen => 5,
       Reuse => 1
    );
    die "Cannot create socket $!\n" unless $socket;
-   add_to_log("Server wartet auf Loxone Verbindung auf Port $hash{port}:");
+   add_to_log("Server wartet auf Loxone Verbindung auf Port $hash{inport}:");
 
    return $socket;
 }
@@ -566,6 +567,8 @@ sub loadConfig
 #                Die IP und der Port wird im Webinterface des Schnittstellenmoduls eingestellt. Die IP
 #                ist die IP des PCs/Raspis auf dem dieses Modul läuft.
 #                Default ist 12004.
+#   input_port = Port auf dem das Modul auf den TCP Trafic des Loxone Miniservers hört.
+#                Default ist 12005.
 #   fw_version = Die Firmware Version des Wolf ISM8i Schnittstellenmoduls. Diese steht im Webinterface des Schnittstellenmoduls.
 #                Möglich sind 1.4 oder 1.5.
 #                Default ist 1.5.
@@ -599,7 +602,10 @@ sub loadConfig
 	          if ($fields[0] eq "ism8i_port") { 
 		         if ($fields[1] =~ m/^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/ and $fields[1] > 0 and $fields[1] <= 65535) {
 			        $hash{port} = $fields[1]; } else { $hash{port} = '12004'; }
-		      } elsif ($fields[0] eq "fw_version") {
+                      } elsif ($fields[0] eq "input_port") {
+                         if ($fields[1] =~ m/^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/ and $fields[1] > 0 and $fields[1] <= 65535) {
+                                $hash{inport} = $fields[1]; } else { $hash{inport} = '12005'; }
+                      } elsif ($fields[0] eq "fw_version") {
 		         if ($fields[1] =~ m/^\d{1}\.\d{1}$/) {
 		         $hash{fw} = $fields[1]; } else { $hash{fw} = '1.5'; }
 			     if ($hash{fw} ne '1.4') { $hash{fw} = '1.5'; }
@@ -634,6 +640,8 @@ sub loadConfig
      print $fh "#                Die IP und der Port wird im Webinterface des Schnittstellenmoduls eingestellt. Die IP\n";
      print $fh "#                ist die IP des PCs/Raspis auf dem dieses Modul läuft.\n";
      print $fh "#                Default ist 12004.\n";
+     print $fh "#   input_port = Port auf dem das Modul auf den TCP Trafic des Loxone Miniservers hört.\n";
+     print $fh "#                Default ist 12005.\n";
      print $fh "#   fw_version = Die Firmware Version des Wolf ISM8i Schnittstellenmoduls. Diese steht im Webinterface des Schnittstellenmoduls.\n";
      print $fh "#                Möglich sind 1.4 oder 1.5\n";
      print $fh "#                Default ist 1.5\n";
@@ -653,6 +661,7 @@ sub loadConfig
      print $fh "######################################################################################################################################################\n\n";
 	 
 	 print $fh "ism8i_port $hash{port}\n";
+         print $fh "input_port $hash{inport}\n";
 	 print $fh "fw_version $hash{fw}\n";
 	 print $fh "multicast_ip $hash{mcip}\n";
 	 print $fh "multicast_port $hash{mcport}\n";
@@ -662,7 +671,7 @@ sub loadConfig
      close $fh;
    }
 	
-   add_to_log("      [$hash{port}] [$hash{fw}] [$hash{mcip}] [$hash{mcport}] [$hash{dplog}] [$hash{output}]");
+   add_to_log("      [$hash{port}] [$hash{inport}] [$hash{fw}] [$hash{mcip}] [$hash{mcport}] [$hash{dplog}] [$hash{output}]");
 }
 
 

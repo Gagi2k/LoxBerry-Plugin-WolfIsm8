@@ -41,6 +41,7 @@ if ($R::saveformdata1) {
         # Write configuration file(s)
         $cfg->param("enable", "$R::enable");
         $cfg->param("ism8i_port", "$R::udpport");
+        $cfg->param("input_port", "$R::inport");
         $cfg->param("fw_version", "$R::version");
         $cfg->param("multicast_ip", $miniservers{$R::ms}{IPAddress});
         $cfg->param("multicast_port", "$R::msudpport");
