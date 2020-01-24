@@ -74,7 +74,7 @@ sub pdt_date($);
 ## Globale Variablen: #######################################################
 
 my $script_path = dirname(__FILE__);
-my $verbose = 3; # 0 = nichts, 1 = Telegrammauswertung, 3 = alles
+my $verbose = 0; # 0 = nichts, 1 = Telegrammauswertung, 3 = alles
 my $fw_actualize = time - 1;
 my $geraet_max_length = 0;
 my @datenpunkte;
