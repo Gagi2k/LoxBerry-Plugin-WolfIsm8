@@ -28,7 +28,7 @@ use IO::Socket::Multicast; #   apt install libio-socket-multicast-perl
 use Data::Dumper qw(Dumper);
 use HTML::Entities;
 use File::Basename;
-use Math::Round qw(nearest); # apt isntall libmath-round-perl
+use Math::Round qw(round); # apt isntall libmath-round-perl
 
 binmode(STDOUT, ":utf8");
 
@@ -762,7 +762,7 @@ sub getCsvResult($$)
 	 }
    elsif ($datatype eq "DPT_Scaling") 
      {
-	  $result .= nearest(0.01, ($dp_val & 0xff) * 100 / 255).";%";
+          $result .= round(($dp_val & 0xff) * 100 / 255).";%";
 	 }
    elsif ($datatype eq "DPT_Value_Temp") 
      {
