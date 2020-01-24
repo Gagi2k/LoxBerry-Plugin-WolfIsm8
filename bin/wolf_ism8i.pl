@@ -255,9 +255,9 @@ sub start_event_loop($$) {
                     my $client_port = $wolf_client->peerport();
                     add_to_log("   Verbindung eines ISM8i Moduls von $client_address:$client_port");
 
-                    #   add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
-                    #   my $pull_request = createPullRequest();
-                    #   if (length($pull_request) > 0) { $client_socket->send($pull_request); }
+                    add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
+                    my $pull_request = createPullRequest();
+                    if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
                 }
                 $read_select->add($wolf_client);
 
@@ -312,7 +312,12 @@ sub read_command_messages($$) {
 
    add_to_log("Read command $rec_data");
    my $send_data = parseInput($rec_data);
-   $ism8_socket->send($send_data);
+   if ($send_data) {
+        $ism8_socket->send($send_data);
+        add_to_log("Send Pull Request after write");
+        my $pull_request = createPullRequest();
+        if (length($pull_request) > 0) { $ism8_socket->send($pull_request); }
+   }
 }
  
 sub read_wolf_messages($) {
