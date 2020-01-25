@@ -174,6 +174,37 @@ if ($R::form eq "1" || !$R::form) {
   my $vixml = encode_base64($virtualinput->output);
   my $url = "data:application/octet-stream;charset=utf-8;base64,$vixml";
   $template->param('VI_HTTP_URL', $url);
+
+
+  my @out_data = ();
+  # Generate a temporary arroy for all virtual outputs
+  for ($i = 1; $i < $count; $i++) {
+      my %d;
+      if ($datenpunkte[$i][4] =~ m/In/) {
+          $d{ID} = $datenpunkte[$i][0];
+          $d{NAME} = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+
+          push(@out_data, \%d);
+      }
+  }
+  my @sorted_out_data = sort { $a->{NAME} cmp $b->{NAME} } @out_data;
+
+  my $virtualoutput = HTML::Template->new(
+          filename => "$lbptemplatedir/virtualoutput.xml",
+          global_vars => 1,
+          loop_context_vars => 1,
+          die_on_bad_params => 0,
+          associate => $cfg,
+  );
+  $virtualoutput->param("DATA" => \@sorted_out_data);
+
+  my $ip = LoxBerry::System::get_localip();
+  my $port = $cfg->param("input_port");
+  $virtualoutput->param('ADDRESS', "tcp://$ip:$port");
+
+  my $voxml = encode_base64($virtualoutput->output);
+  my $url = "data:application/octet-stream;charset=utf-8;base64,$voxml";
+  $template->param('VO_HTTP_URL', $url);
 }
 
 
