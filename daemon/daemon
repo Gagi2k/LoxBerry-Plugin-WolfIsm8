@@ -23,7 +23,7 @@ if [ $enabled -eq 1 ]; then
             /usr/bin/logger "loxberry-plugin-$pluginname - Starting olf ISM8 Server"
     fi
     # Enable
-    su loxberry -c $LBHOMEDIR/bin/plugins/$pluginname/wolf_server start > /dev/null 2>&1
+    su loxberry -c "$LBHOMEDIR/bin/plugins/$pluginname/wolf_server start" > /dev/null 2>&1
 fi
 
 # Exit with Status 0
