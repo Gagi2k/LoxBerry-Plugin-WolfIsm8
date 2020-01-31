@@ -15,7 +15,26 @@ my $version = LoxBerry::System::pluginversion();
 
 # config
 my $cfg = new Config::Simple("$lbpconfigdir/wolf_ism8i.conf");
- 
+
+if (! defined $cfg->param('enable')) {
+    $cfg->param('enable', 0)
+}
+if (! defined $cfg->param('ism8i_port')) {
+    $cfg->param('ism8i_port', 12004)
+}
+if (! defined $cfg->param('input_port')) {
+    $cfg->param('input_port', 12005)
+}
+if (! defined $cfg->param('fw_version')) {
+    $cfg->param('fw_version', 1.5)
+}
+if (! defined $cfg->param('multicast_port')) {
+    $cfg->param('multicast_port', 35353)
+}
+if (! defined $cfg->param('dp_log')) {
+    $cfg->param('dp_log', 0)
+}
+
 
 # Template
 my $template = HTML::Template->new(
