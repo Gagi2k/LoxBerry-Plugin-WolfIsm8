@@ -531,10 +531,11 @@ sub decodeTelegram($)
                                        "DPT_ActiveEnergy_kWh" );
                             my $datatype = getDatenpunkt($DP_ID, 3);
 
+                            my $id = sprintf "%03d", $fields[1];
                             if (grep( /^$datatype$/, @types )) {
-                                $send_msg = $fields[1].";".$fields[4];
+                                $send_msg = $id.";".$fields[4];
                             } else {
-                                $send_msg = $fields[1].";".$DP_value;
+                                $send_msg = $id.";".$DP_value;
                             }
                         }
 

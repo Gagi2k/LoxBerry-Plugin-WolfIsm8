@@ -174,7 +174,7 @@ if ($R::form eq "1" || !$R::form) {
   # Generate a temporary arroy for all virtual inputs
   for ($i = 1; $i < $count; $i++) {
       my %d;
-      $d{ID} = $datenpunkte[$i][0];
+      $d{ID} = sprintf "%03d", $datenpunkte[$i][0];
       $d{NAME} = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
 
       push(@data, \%d);
