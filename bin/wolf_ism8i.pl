@@ -105,7 +105,7 @@ open(my $log_fh, '>>', $lbplogdir."/wolf_ism8i.log") or die "Could not open/writ
 *STDERR = $log_fh;
 
 add_to_log("");
-add_to_log("############ Strate Wolf ISM8i Auswertungs-Modul ############");
+add_to_log("############ Starte Wolf ISM8i Auswertungs-Modul ############");
 
 #Subs aufrufen:
 loadConfig();
@@ -314,10 +314,16 @@ sub read_command_messages($$) {
    add_to_log("Read command $rec_data");
    my $send_data = parseInput($rec_data);
    if ($send_data) {
+        $SIG{ALRM} = sub
+        # Alarm timeout startet den Pull Request
+        {
+           add_to_log("Send Pull Request");
+           my $pull_request = createPullRequest();
+           if (length($pull_request) > 0) { $ism8_socket->send($pull_request); }
+        };
         $ism8_socket->send($send_data);
-        add_to_log("Send Pull Request after write");
-        my $pull_request = createPullRequest();
-        if (length($pull_request) > 0) { $ism8_socket->send($pull_request); }
+        add_to_log("Start Pull Request Timer (5 seconds)");
+        alarm(5);
    }
 }
  
@@ -369,7 +375,6 @@ sub create_answer($)
 	   return "";
 	  }
 }
-
 
 sub create_logdir
 # Erstellt den Ordner für Logs.
