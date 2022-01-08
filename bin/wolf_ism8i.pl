@@ -15,8 +15,7 @@ use List::MoreUtils qw(first_index);
 use IO::Select;
 use diagnostics;
 use LoxBerry::System;
-#my $lbpconfigdir = dirname(__FILE__);
-#my $lbplogdir = dirname(__FILE__)."/log";
+use LoxBerry::Log;
 
 use strict;
 use warnings;
@@ -45,7 +44,6 @@ sub createRequest($$);
 sub create_answer($);
 sub create_logdir;
 sub log_msg_data($$);
-sub add_to_log($);
 sub getLoggingTime;
 sub dec2ip($);
 sub ip2dec($);
@@ -91,21 +89,16 @@ my %hash = (
              output   => 'fhem' ,
 			);
 
+# Version of this script
+my $version = LoxBerry::System::pluginversion();
+
+my $log = LoxBerry::Log->new ( name => 'server' , addtime => 1);
 			
 ## Ablauf starten ###########################################################
 			
-# Original Einstellungen sichern
-*OLD_STDOUT = *STDOUT;
-*OLD_STDERR = *STDERR;
+LOGSTART "Starting $0 Version $version";
 
-# Umleiten von STDOUT, STDERR
-create_logdir(); # Ordner 'log' erzeugen wenn nicht vorhanden.
-open(my $log_fh, '>>', $lbplogdir."/wolf_ism8i.log") or die "Could not open/write file 'wolf_ism8i.log' $!";
-*STDOUT = $log_fh;
-*STDERR = $log_fh;
-
-add_to_log("");
-add_to_log("############ Starte Wolf ISM8i Auswertungs-Modul ############");
+LOGINF "############ Starte Wolf ISM8i Auswertungs-Modul ############";
 
 #Subs aufrufen:
 loadConfig();
@@ -120,10 +113,10 @@ start_IGMPserver();
 
 start_event_loop(start_WolfServer(), start_CommandServer());
 
-# STDOUT/STDERR wiederherstellen
-close $log_fh;
-*STDOUT = *OLD_STDOUT;
-*STDERR = *OLD_STDERR;
+## STDOUT/STDERR wiederherstellen
+#close $log_fh;
+#*STDOUT = *OLD_STDOUT;
+#*STDERR = *OLD_STDERR;
 
 
 ## Sub Definitionen #########################################################
@@ -131,7 +124,7 @@ close $log_fh;
 sub start_IGMPserver
 # Startet einen Multicast Server
 {
-   add_to_log("Creating multicast group server $hash{mcip}:$hash{mcport}:");
+   LOGINF("Creating multicast group server $hash{mcip}:$hash{mcport}:");
 
    $igmp_sock = IO::Socket::Multicast->new(
            Proto     => 'udp',
@@ -141,7 +134,7 @@ sub start_IGMPserver
 
    # ACHTUNG: kein $igmp_sock->mcast_add() bei Server!
    
-   add_to_log("   Creating to multicast group success.");
+   LOGINF("   Creating to multicast group success.");
 }
 
 
@@ -150,7 +143,7 @@ sub send_IGMPmessage($)
    my $message = shift;
    my $host = $igmp_sock->peerhost();
    my $port = $igmp_sock->peerport();
-   add_to_log("Sende UDP Daten zu $host:$port: $message");
+   LOGINF("Sende UDP Daten zu $host:$port: $message");
 
    my $ok = $igmp_sock->send($message) or die "Couldn't send to $host:$port: $!";
    if ($ok == 0) { print $ok."\n"; }
@@ -178,8 +171,8 @@ sub createRequest($$)
 
     my $request = $knx_frame.$conn_frame.$obj_frame.$dp_value;
 
-    if ($verbose == 3) { add_to_log("Sende Daten (".length($request)." Bytes):"); }
-    if ($verbose == 3) { add_to_log(join(" ", unpack("H2" x length($request), $request))); }
+    LOGDEB("Sende Daten (".length($request)." Bytes):");
+    LOGDEB(join(" ", unpack("H2" x length($request), $request)));
 
     return $request;
 }
@@ -187,7 +180,7 @@ sub createRequest($$)
 sub createPullRequest()
 {
     my @a = ("06","20","F0","80","00","16","04","00","00","00","F0","D0");
-    if ($verbose == 3) { add_to_log("Pull Request: ".join(" ", @a)); }
+    LOGDEB("Sende Pull Request: ".join(" ", @a));
     return pack("H2" x 17, @a);
 }
 
@@ -206,7 +199,7 @@ sub start_CommandServer()
       Reuse => 1
    );
    die "Cannot create socket $!\n" unless $socket;
-   add_to_log("Server wartet auf Loxone Verbindung auf Port $hash{inport}:");
+   LOGINF("Server wartet auf Loxone Verbindung auf Port $hash{inport}:");
 
    return $socket;
 }
@@ -226,7 +219,7 @@ sub start_WolfServer()
       Reuse => 1
    );
    die "Cannot create socket $!\n" unless $socket;
-   add_to_log("Server wartet auf ISM8i Verbindung auf Port $hash{port}:");
+   LOGINF("Server wartet auf ISM8i Verbindung auf Port $hash{port}:");
 
    return $socket;
 }
@@ -246,7 +239,7 @@ sub start_event_loop($$) {
 
         ## No timeout specified (see docs for IO::Select).  This will block until a TCP
         ## client connects or we have data.
-        add_to_log("Warte auf neue ISM8 Daten");
+        LOGINF("Warte auf neue ISM8 Daten");
         my @read = $read_select->can_read();
 
         foreach my $read (@read) {
@@ -259,9 +252,9 @@ sub start_event_loop($$) {
                     my $client_address = $wolf_client->peerhost();
                     $hash{ism8i_ip} = $wolf_client;
                     my $client_port = $wolf_client->peerport();
-                    add_to_log("   Verbindung eines ISM8i Moduls von $client_address:$client_port");
+                    LOGINF("   Verbindung eines ISM8i Moduls von $client_address:$client_port");
 
-                    add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
+                    LOGINF("Sende Pull Request zum ISM8i Modul: $client_address");
                     my $pull_request = createPullRequest();
                     if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
 
@@ -283,7 +276,7 @@ sub start_event_loop($$) {
                     # get information about a newly connected client
                     my $client_address = $command_client->peerhost();
                     my $client_port = $command_client->peerport();
-                    add_to_log("   Verbindung eines Clients von $client_address:$client_port");
+                    LOGINF("   Verbindung eines Clients von $client_address:$client_port");
                 }
 
                 read_command_messages($command_client, $wolf_client);
@@ -313,22 +306,22 @@ sub read_command_messages($$) {
    $client_socket->recv($rec_data, 4096);
 
    if (!$ism8_socket) {
-        add_to_log("No ISM8 connection, ignoring command!");
+        LOGINF("No ISM8 connection, ignoring command!");
         return;
    }
 
-   add_to_log("Read command $rec_data");
+   LOGINF("Read command $rec_data");
    my $send_data = parseInput($rec_data);
    if ($send_data) {
         $SIG{ALRM} = sub
         # Alarm timeout startet den Pull Request
         {
-           add_to_log("Send Pull Request");
+           LOGINF("Send Pull Request");
            my $pull_request = createPullRequest();
            if (length($pull_request) > 0) { $ism8_socket->send($pull_request); }
         };
         $ism8_socket->send($send_data);
-        add_to_log("Start Pull Request Timer (5 seconds)");
+        LOGINF("Start Pull Request Timer (5 seconds)");
         alarm(5);
    }
 }
@@ -411,18 +404,6 @@ sub log_msg_data($$)
    close $fh;
 }
 
-
-sub add_to_log($)
-#fügt einen Eintrag zur Logdatei hinzu
-{
-   my $msg = shift;
-   my $filename = $lbplogdir."/wolf_ism8i.log";
-   open(my $fh, '>>:encoding(UTF-8)', $filename) or die "Could not open file '$filename' $!";
-   print $fh getLoggingTime()." $msg\n";
-   close $fh;
-}
-
-
 sub getLoggingTime
 #Returnt eine gut lesbare Zeit für Logeinträge.
 {
@@ -497,16 +478,16 @@ sub decodeTelegram($)
    my @h = unpack("H2" x $TelegrammLength, $_[0]);
    
    my $hex_result = join(" ", @h);
-   if ($verbose == 3) { add_to_log($hex_result); }
+   LOGDEB("ISM8 Daten: $hex_result");
  
    my $FrameSize = hex($h[4].$h[5]);
    my $MainService = hex($h[10]);
    my $SubService = hex($h[11]);
    
    if ($FrameSize != $TelegrammLength) {
-	  if ($verbose >= 1) { add_to_log("*** ERROR: TelegrammLength/FrameSize missmatch. [".$FrameSize."/".$TelegrammLength."] ***"); }
+        LOGERR("*** ERROR: TelegrammLength/FrameSize missmatch. [".$FrameSize."/".$TelegrammLength."] ***");
    } elsif ($SubService != 0x06) {
-	  if ($verbose >= 1) { add_to_log("*** WARNING: No SetDatapointValue.Req. [".sprintf("%x", $SubService)."] ***"); }
+        LOGERR("*** WARNING: No SetDatapointValue.Req. [".sprintf("%x", $SubService)."] ***");
    } elsif ($MainService == 0xF0 and $SubService == 0x06) {
       my $StartDatapoint = hex($h[12].$h[13]);
       my $NumberOfDatapoints = hex($h[14].$h[15]);
@@ -600,17 +581,17 @@ sub loadConfig
 #
 {
    my $file = $lbpconfigdir."/wolf_ism8i.conf";
-   add_to_log("Reading Config:");
+   LOGINF("Reading Config:");
    if (-e $file) {
 	  my $data;
       open($data, '<:encoding(UTF-8)', $file) or die "Could not open '$file' $!\n";
-      add_to_log("   Config file '$file' found and opened for reading.");
+      LOGINF("   Config file '$file' found and opened for reading.");
       while (my $line = <$data>) {
 	    $line = lc($line); # alles lowe case
 		if ($line !~ m/#/) {
 		   my @fields = split(/ /, l_r_dbl_trim($line));
 	       if (scalar(@fields) == 2) {
-              add_to_log("      $fields[0] -> $fields[1]");
+              LOGINF("      $fields[0] -> $fields[1]");
 	          if ($fields[0] eq "ism8i_port") { 
 		         if ($fields[1] =~ m/^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/ and $fields[1] > 0 and $fields[1] <= 65535) {
 			        $hash{port} = $fields[1]; } else { $hash{port} = '12004'; }
@@ -639,7 +620,7 @@ sub loadConfig
       }
 	  close $data;
    } else {
-     add_to_log("   Config file not found, creating new config file.");
+     LOGINF("   Config file not found, creating new config file.");
      open(my $fh, '>:encoding(UTF-8)', $file) or die "Could not open/write file '$file' $!";
 	  
      print $fh "######################################################################################################################################################\n";
@@ -683,7 +664,7 @@ sub loadConfig
      close $fh;
    }
 	
-   add_to_log("      [$hash{port}] [$hash{inport}] [$hash{fw}] [$hash{mcip}] [$hash{mcport}] [$hash{dplog}] [$hash{output}]");
+   LOGINF("      [$hash{port}] [$hash{inport}] [$hash{fw}] [$hash{mcip}] [$hash{mcport}] [$hash{dplog}] [$hash{output}]");
 }
 
 
@@ -875,18 +856,18 @@ sub parseInput($)
     my $id = $input[0];
     my $data = $input[1];
     if (scalar(@input) != 2) {
-        add_to_log("Invalid command, expected the format: <ID>;<VALUE>");
+        LOGERR("Invalid command, expected the format: <ID>;<VALUE>");
         return;
     }
     my $geraet = getDatenpunkt($id, 1);
     my $datatype = getDatenpunkt($id, 3);
     my $writeable = getDatenpunkt($id, 4) =~ m/In/;
     if (!$writeable) {
-        add_to_log("Datenpunkt $id kann nicht beschrieben werden!");
+        LOGERR("Datenpunkt $id kann nicht beschrieben werden!");
         return;
     }
 
-    add_to_log("VALUE: ".$data);
+    LOGINF("VALUE: ".$data);
 
     my $enc_value;
 
@@ -895,7 +876,7 @@ sub parseInput($)
         $datatype eq "DPT_Enable" ||
         $datatype eq "DPT_OpenClose") {
         if ($data < 0 || $data > 1) {
-            add_to_log("Invalid input!");
+            LOGERR("Invalid input!");
             return;
         }
         $enc_value = pack("C", $data);
@@ -930,36 +911,35 @@ sub parseInput($)
     elsif ($datatype eq "DPT_HVACMode")  {
         if ($geraet =~ /Heizkreis/ or $geraet =~ /Mischerkreis/) {
             if ($data < 0 || $data > 3) {
-                add_to_log("Invalid input!");
+                LOGERR("Invalid input!");
                 return;
             }
             $enc_value = pack("C", $data);
         } elsif ($geraet =~ /CWL/) {
             if (!($data == 0 || $data == 1 || $data == 3)) {
-                add_to_log("Invalid input!");
+                LOGERR("Invalid input!");
                 return;
             }
             $enc_value = pack("C", $data);
         } else {
-            add_to_log("errr");
-            add_to_log("Invalid input!");
+            LOGERR("Invalid input!");
             return;
         }
     }
     elsif ($datatype eq "DPT_DHWMode") {
         if ($geraet =~ /Warmwasser/) {
             if (!($data == 0 || $data == 2 || $data == 4)) {
-                add_to_log("Invalid input!");
+                LOGERR("Invalid input!");
                 return;
             }
             $enc_value = pack("C", $data);
         } else {
-            add_to_log("Invalid input!");
+            LOGERR("Invalid input!");
             return;
         }
     }
     else {
-        add_to_log("Invalid type!");
+        LOGERR("Invalid type!");
         return;
     }
 
@@ -1068,19 +1048,19 @@ sub to_pdt_time($)
 
     $day = first_index { $_ eq $day } @weekdays;
     if ($day == 0) {
-        add_to_log("Couldn't parse day. Possibe values: ".join(" ",@weekdays));
+        LOGERR("Couldn't parse day. Possibe values: ".join(" ",@weekdays));
         return -1;
     }
     if ($hour < 0 || $hour > 23) {
-        add_to_log("Invalid hour: $hour");
+        LOGERR("Invalid hour: $hour");
         return -1;
     }
     if ($min < 0 || $min > 59) {
-        add_to_log("Invalid minute: $min");
+        LOGERR("Invalid minute: $min");
         return -1;
     }
     if ($sec < 0 || $sec > 59) {
-        add_to_log("Invalid seconds: $sec");
+        LOGERR("Invalid seconds: $sec");
         return -1;
     }
     $day = $day << 5;
@@ -1112,15 +1092,15 @@ sub to_pdt_date($)
     my $mon = $d[1];
     my $year = $d[2];
     if ($day < 0 || $day > 31) {
-        add_to_log("Invalid day: $day");
+        LOGERR("Invalid day: $day");
         return -1;
     }
     if ($mon < 0 || $mon > 12) {
-        add_to_log("Invalid month: $mon");
+        LOGERR("Invalid month: $mon");
         return -1;
     }
     if ($year < 0 || $year > 99) {
-        add_to_log("Invalid year: $year");
+        LOGERR("Invalid year: $year");
         return -1;
     }
     return pack("C C C",$day, $mon, $year);
