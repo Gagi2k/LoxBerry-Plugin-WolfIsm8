@@ -20,24 +20,26 @@ BINPATH=${LBPBIN}/wolfism8
 case "$1" in
   'start')
     echo "Starting Wolf ISM8i server"
-    perl $BINPATH/wolf_ism8i.pl &
+    ${BINPATH}/wolf_watchdog.sh &
     RETVAL=$?
     ;;
   'stop')
     echo "Stopping Wolf ISM8i server"
-    pkill -f $BINPATH/wolf_ism8i.pl
+    pkill -f ${BINPATH}/wolf_watchdog.sh
+    pkill -f wolf_ism8i.pl
     RETVAL=$?
     ;;
   'restart')
     echo "Restarting Wolf ISM8i server"
+    pkill -f ${BINPATH}/wolf_watchdog.sh
     pkill -f wolf_ism8i.pl
     RETVAL=$?
 	sleep 1
-    perl $BINPATH/wolf_ism8i.pl &
+    ${BINPATH}/wolf_watchdog.sh &
     RETVAL=$?
     ;;
   'status')
-    cnt=`ps -ef | grep "wolf_ism8i.pl" | grep -v grep | wc -l`
+    cnt=`ps -ef | grep "${BINPATH}/wolf_watchdog.sh" | grep -v grep | wc -l`
     if [ "$cnt" -eq "0" ] ; then
         echo "Wolf ISM8i server is not running"
     else
