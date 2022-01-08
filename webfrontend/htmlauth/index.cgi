@@ -93,7 +93,7 @@ $navbar{2}{Name} = "$L{'SETTINGS.LABEL_TEMPLATEBUILDER'}";
 $navbar{2}{URL} = 'index.cgi?form=2';
 
 $navbar{3}{Name} = "$L{'SETTINGS.LABEL_LOG'}";
-$navbar{3}{URL} = "/admin/system/tools/logfile.cgi?logfile=$lbplogdir/wolf_ism8i.log&header=html&format=template&only=once";
+$navbar{3}{URL} = LoxBerry::Web::loglist_url();
 $navbar{3}{target} = '_blank';
 
 #
