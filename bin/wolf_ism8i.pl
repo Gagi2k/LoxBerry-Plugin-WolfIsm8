@@ -148,7 +148,11 @@ sub start_IGMPserver
 sub send_IGMPmessage($)
 {
    my $message = shift;
-   my $ok = $igmp_sock->send($message) or die "Couldn't send to multicast group: $!";
+   my $host = $igmp_sock->peerhost();
+   my $port = $igmp_sock->peerport();
+   add_to_log("Sende UDP Daten zu $host:$port: $message");
+
+   my $ok = $igmp_sock->send($message) or die "Couldn't send to $host:$port: $!";
    if ($ok == 0) { print $ok."\n"; }
 }
 
@@ -242,6 +246,7 @@ sub start_event_loop($$) {
 
         ## No timeout specified (see docs for IO::Select).  This will block until a TCP
         ## client connects or we have data.
+        add_to_log("Warte auf neue ISM8 Daten");
         my @read = $read_select->can_read();
 
         foreach my $read (@read) {
@@ -259,8 +264,9 @@ sub start_event_loop($$) {
                     add_to_log("Sende Pull Request zum ISM8i Modul: $client_address");
                     my $pull_request = createPullRequest();
                     if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
+
+                    $read_select->add($wolf_client);
                 }
-                $read_select->add($wolf_client);
 
                 read_wolf_messages($wolf_client);
             }
