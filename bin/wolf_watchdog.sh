@@ -6,6 +6,9 @@ SCRIPTPATH=`dirname "$0"`;
 PACKAGE=wolfism8
 NAME=watchdog
 LOGDIR=${LBPLOG}/${PACKAGE}
+ADDTIME=1
+
+LOGSTART
 
 on_die()
 {
@@ -19,14 +22,19 @@ on_die()
         exit 0
 }
 
+start_server()
+{
+LOGINF "Starting 'Wolf ISM8 Server'"
+perl -X $SCRIPTPATH/wolf_ism8i.pl >> ${FILENAME} 2>&1
+}
+
 trap 'on_die' TERM
 
-LOGSTART "Server 'Wolf ISM8 Server' started"
 starttime=`date +%s`
 restart_counter=0
 time_threshold=5
 restart_threshold=5
-until perl -X $SCRIPTPATH/wolf_ism8i.pl >> ${FILENAME} 2>&1; do
+until start_server; do
     LOGERR "Server 'Wolf ISM8 Server' crashed with exit code $?.  Respawning.." >&2
     stoptime=`date +%s`
     timediff=$((stoptime-starttime))
@@ -41,6 +49,7 @@ until perl -X $SCRIPTPATH/wolf_ism8i.pl >> ${FILENAME} 2>&1; do
     else
         restart_counter=0
     fi
+    LOGINF "Sleeping 5 seconds until next Restart"
     sleep 5
     starttime=`date +%s`
 done
