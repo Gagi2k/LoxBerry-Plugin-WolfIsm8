@@ -229,6 +229,7 @@ sub start_event_loop($$) {
     my $command_socket = $_[1];
     my $wolf_client;
     my $command_client;
+    my $drop_counter = 0;
 
     my $read_select  = IO::Select->new();
 
@@ -243,7 +244,9 @@ sub start_event_loop($$) {
         my @read = $read_select->can_read();
 
         foreach my $read (@read) {
+            LOGDEB("Lese Daten");
             if ($read == $wolf_socket) {
+
                 if (!$wolf_client) {
                     # waiting for a new client connection
                     $wolf_client = $wolf_socket->accept();
@@ -261,11 +264,28 @@ sub start_event_loop($$) {
                     $read_select->add($wolf_client);
                 }
 
-                read_wolf_messages($wolf_client);
+                if (read_wolf_messages($wolf_client)) {
+                    $drop_counter = 0;
+                } else {
+                    $drop_counter++;
+                }
             }
 
             if ($read == $wolf_client) {
-                read_wolf_messages($wolf_client);
+                if (read_wolf_messages($wolf_client)) {
+                    $drop_counter = 0;
+                } else {
+                    $drop_counter++;
+                }
+            }
+
+            if ($drop_counter >= 10) {
+                $drop_counter = 0;
+                my $client_address = $wolf_client->peerhost();
+                LOGINF("Verbindung zu $client_address abgebrochen.");
+                shutdown($wolf_client, 1);
+                $read_select->remove($wolf_client);
+                $wolf_client = undef;
             }
 
             if ($read == $command_socket) {
@@ -303,7 +323,9 @@ sub read_command_messages($$) {
 
    # read up to 4096 characters from the connected client
    my $rec_data = "";
-   $client_socket->recv($rec_data, 4096);
+
+   LOGDEB("Lese Command Socket");
+   $client_socket->recv($rec_data, 4096, MSG_DONTWAIT);
 
    if (!$ism8_socket) {
         LOGINF("No ISM8 connection, ignoring command!");
@@ -331,10 +353,16 @@ sub read_wolf_messages($) {
  
    # read up to 4096 characters from the connected client
    my $rec_data = "";
-   $client_socket->recv($rec_data, 4096);
 
-   if ($verbose == 3) { add_to_log("Daten Empfang (".length($rec_data)." Bytes):"); }
-   if ($verbose == 3) { add_to_log(join(" ", unpack("H2" x length($rec_data), $rec_data))); }
+   LOGDEB("Lese Wolf Socket");
+   $client_socket->recv($rec_data, 4096, MSG_DONTWAIT);
+
+   if (length($rec_data) == 0) {
+       return 0;
+   }
+
+   LOGDEB("Daten Empfang (".length($rec_data)." Bytes):");
+   LOGDEB(join(" ", unpack("H2" x length($rec_data), $rec_data)));
 
    my $starter = chr(0x06).chr(0x20).chr(0xf0).chr(0x80);
    my @fields = split(/$starter/, $rec_data);
@@ -351,6 +379,8 @@ sub read_wolf_messages($) {
             decodeTelegram($r);
           }
       }
+
+    return 1;
 }
 
 
@@ -366,7 +396,7 @@ sub create_answer($)
    elsif ($h[10] eq "f0" and $h[11] eq "06")
       {
        my @a = ($h[0],$h[1],$h[2],$h[3],"00","11",$h[6],$h[7],$h[8],$h[9],$h[10],"86",$h[12],$h[13],"00","00","00");
-       if ($verbose == 3) { add_to_log("Antwort: ".join(" ", @a)); }
+       LOGDEB("Antwort: ".join(" ", @a));
        return pack("H2" x 17, @a);
 	  }
    else
