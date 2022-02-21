@@ -32,8 +32,8 @@ trap 'on_die' TERM
 
 starttime=`date +%s`
 restart_counter=0
-time_threshold=5
-restart_threshold=5
+time_threshold=10
+restart_threshold=20
 until start_server; do
     LOGERR "Server 'Wolf ISM8 Server' crashed with exit code $?.  Respawning.." >&2
     stoptime=`date +%s`
@@ -49,7 +49,8 @@ until start_server; do
     else
         restart_counter=0
     fi
-    LOGINF "Sleeping 5 seconds until next Restart"
-    sleep 5
+    sleep_time=$(((restart_counter+1) * (restart_counter+1) * 5))
+    LOGINF "Sleeping $sleep_time seconds until next Restart"
+    sleep $sleep_time
     starttime=`date +%s`
 done
