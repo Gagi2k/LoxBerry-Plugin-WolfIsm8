@@ -35,10 +35,17 @@ if (! defined $cfg->param('dp_log')) {
     $cfg->param('dp_log', 0)
 }
 
+# Template
+my $templatefile = "$lbptemplatedir/index.html";
+my $template_in = LoxBerry::System::read_file($templatefile);
+
+# Add JS Scripts to template
+$templatefile = "$lbptemplatedir/javascript.html";
+$template_in .= LoxBerry::System::read_file($templatefile);
 
 # Template
-my $template = HTML::Template->new(
-    filename => "$lbptemplatedir/index.html",
+my $template = HTML::Template->new_scalar_ref(
+    \$template_in,
     global_vars => 1,
     loop_context_vars => 1,
     die_on_bad_params => 0,
