@@ -29,6 +29,9 @@ use HTML::Entities;
 use File::Basename;
 use Math::Round qw(round); # apt isntall libmath-round-perl
 
+use LoxBerry::IO;
+use Net::MQTT::Simple;
+
 binmode(STDOUT, ":utf8");
 
 
@@ -78,6 +81,9 @@ my $geraet_max_length = 0;
 my @datenpunkte;
 my $last_auswertung = "";
 my $igmp_sock;
+my $mqtt;
+my %mqtt_values;
+my $wolf_client;
 my %hash = (
              ism8i_ip => '?.?.?.?' ,
              port     => '12004' ,
@@ -111,6 +117,8 @@ writeDatenpunkteToLog();
 
 start_IGMPserver();
 
+connect_MQTT();
+
 start_event_loop(start_WolfServer(), start_CommandServer());
 
 ## STDOUT/STDERR wiederherstellen
@@ -121,6 +129,86 @@ start_event_loop(start_WolfServer(), start_CommandServer());
 
 ## Sub Definitionen #########################################################
 
+sub connect_MQTT
+{
+    if ($hash{mqtt} eq '1') {
+        $mqtt = mqtt_connect();
+        if ($mqtt) {
+            $mqtt->subscribe("wolfism8/#", \&received_MQTT);
+        }
+    }
+}
+
+sub publish_MQTT($$$)
+{
+    my $id = $_[0];
+    my $topic = $_[1];
+    my $value = $_[2];
+    if ($value eq $mqtt_values{$topic}[1]) {
+        LOGDEB("Value didn't change. Ignoring...");
+        return;
+    }
+    $mqtt_values{$topic} = [$id, $value];
+    LOGDEB("Saving state for topic $topic: $id: $value");
+    if ($mqtt) {
+        LOGINF("publish Data: $id on MQTT topic $topic: $value");
+        $mqtt->retain($topic, $value);
+    }
+}
+
+sub received_MQTT
+{
+    my ($topic, $message) = @_;
+    LOGDEB("incoming MQTT message: $topic: $message");
+    if (!exists $mqtt_values{$topic}) {
+        LOGDEB("No Saved state for topic yet! Ignoring...");
+        return;
+    }
+    my $id = $mqtt_values{$topic}[0];
+    my $value = $mqtt_values{$topic}[1];
+    LOGDEB("Saved state for topic: $id: $value");
+    if ($value eq $message) {
+        LOGDEB("Value didn't change. Ignoring...");
+        return;
+    }
+    LOGINF("received MQTT input ID: $id topic $topic: $message");
+
+    my $send_data = parseInput("$id;$message");
+    if ($send_data) {
+        $SIG{ALRM} = sub
+        # Alarm timeout startet den Pull Request
+        {
+           LOGINF("Send Pull Request");
+           my $pull_request = createPullRequest();
+           if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
+        };
+        $wolf_client->send($send_data);
+        LOGINF("Start Pull Request Timer (5 seconds)");
+        alarm(5);
+    } else {
+        LOGINF("resetting MQTT to previous state: $id topic $topic: $value");
+        publish_MQTT($id, $topic, $value);
+    }
+}
+
+sub getMQTTFriendly($)
+#Ersetzt alle Zeichen so, dass das Ergebnis als FHEM Reading Name taugt.
+{
+    my $working_string = shift;
+    my @tbr = ("/", "_");
+
+    for (my $i=0; $i <= scalar(@tbr)-1; $i+=2)
+      {
+       my $f = $tbr[$i];
+       if ($working_string =~ /$f/)
+          {
+           my $r = $tbr[$i+1];
+               $working_string =~ s/$f/$r/g;
+              }
+       }
+    return $working_string;
+}
+
 sub start_IGMPserver
 # Startet einen Multicast Server
 {
@@ -128,7 +216,7 @@ sub start_IGMPserver
 
    $igmp_sock = IO::Socket::Multicast->new(
            Proto     => 'udp',
-		   PeerAddr  => "$hash{mcip}:$hash{mcport}",
+           PeerAddr  => "$hash{mcip}:$hash{mcport}",
            ReusePort => '1',
    ) or die "ERROR: Cant create socket: $@! ";
 
@@ -227,7 +315,6 @@ sub start_WolfServer()
 sub start_event_loop($$) {
     my $wolf_socket = $_[0];
     my $command_socket = $_[1];
-    my $wolf_client;
     my $command_client;
     my $drop_counter = 0;
 
@@ -240,8 +327,8 @@ sub start_event_loop($$) {
 
         ## No timeout specified (see docs for IO::Select).  This will block until a TCP
         ## client connects or we have data.
-        LOGINF("Warte auf neue ISM8 Daten");
-        my @read = $read_select->can_read();
+        LOGDEB("Warte auf neue ISM8 Daten");
+        my @read = $read_select->can_read(1);
 
         foreach my $read (@read) {
             LOGDEB("Lese Daten");
@@ -306,6 +393,10 @@ sub start_event_loop($$) {
                 shutdown($command_client, 1);
                 $command_client = undef;
             }
+        }
+
+        if ($mqtt) {
+            $mqtt->tick();
         }
     }
 
@@ -539,12 +630,12 @@ sub decodeTelegram($)
 			 
 			if ($hash{output} eq 'fhem') {
 			   ## Auswertung für FHEM erstellen ##
-	           $send_msg = getFhemFriendly($fields[2]).".".$fields[1].".".getFhemFriendly($fields[3]); # Geraet - DP ID - Datenpunkt
+                           $send_msg = getFhemFriendly($fields[2]).".".$fields[1].".".getFhemFriendly($fields[3]); # Geraet - DP ID - Datenpunkt
 			   if (scalar(@fields) == 6) { $send_msg .= ".".getFhemFriendly($fields[5]); } # Einheit (wenn vorhanden)
 			   $send_msg .= " ".$fields[4]; # Wert (nach Leerstelle!)
 			} elsif ($hash{output} eq 'csv') {
 			   ## Auswertung als CSV erstellen ##
-	           $send_msg = $fields[1].";".$fields[2].";".$fields[3].";".$fields[4];
+                           $send_msg = $fields[1].";".$fields[2].";".$fields[3].";".$fields[4];
 			   if (scalar(@fields) == 6) { $send_msg .= ";".$fields[5]; }
                         } elsif ($hash{output} eq 'data') {
                             my @types = ("DPT_Scaling","DPT_Value_Temp","DPT_Value_Tempd","DPT_Value_Pres",
@@ -563,6 +654,31 @@ sub decodeTelegram($)
 
 			## Auswertung an Multicast Gruppe schicken ..
 			send_IGMPmessage($send_msg);
+
+                        ## Auswertung an MQTT schicken ..
+                        if ($hash{mqtt} eq '1') {
+                             # wolfism8/Geraet/Datenpunkt
+                             my $topic = "wolfism8/".getMQTTFriendly($fields[2])."/".getMQTTFriendly($fields[3]);
+                             if (scalar(@fields) == 6) { $topic .= "/".getMQTTFriendly($fields[5]); } # Einheit (wenn vorhanden)
+
+                             my @types = ("DPT_Scaling","DPT_Value_Temp","DPT_Value_Tempd","DPT_Value_Pres",
+                                        "DPT_Power","DPT_Value_Volume_Flow","DPT_TimeOfDay",
+                                        "DPT_Date","DPT_FlowRate_m3/h","DPT_ActiveEnergy",
+                                        "DPT_ActiveEnergy_kWh" );
+                             my $datatype = getDatenpunkt($DP_ID, 3);
+                             my $value;
+                             if (grep( /^$datatype$/, @types )) {
+                                $value = $fields[4];
+                             } else {
+                                if ($DP_value == 1) {
+                                    $value = "true";
+                                } else {
+                                    $value = "false";
+                                }
+                             }
+
+                             publish_MQTT($DP_ID, $topic, $value);
+                        }
 			
 			## Wenn aktiviert, Auswertung in ein File schreiben ##
 			if ($hash{dplog} eq '1') { log_msg_data($send_msg,$hash{output}); }
@@ -644,6 +760,9 @@ sub loadConfig
 		      } elsif ($fields[0] eq "output") {
                          if ($fields[1] =~ m/^(csv|fhem|data)$/) {
 		            $hash{output} = $fields[1]; } else { $hash{dplog} = 'fhem'; }
+                      } elsif ($fields[0] eq "mqtt") {
+                         if ($fields[1] =~ m/^(1|0)$/) {
+                            $hash{mqtt} = $fields[1]; } else { $hash{mqtt} = '0'; }
 	          }
 		   }	  
 	    }
@@ -690,6 +809,7 @@ sub loadConfig
 	 print $fh "multicast_port $hash{mcport}\n";
 	 print $fh "dp_log $hash{dplog}\n";
 	 print $fh "output $hash{output}\n";
+         print $fh "mqtt $hash{mqtt}\n";
 
      close $fh;
    }
@@ -886,7 +1006,7 @@ sub parseInput($)
     my $id = $input[0];
     my $data = $input[1];
     if (scalar(@input) != 2) {
-        LOGERR("Invalid command, expected the format: <ID>;<VALUE>");
+        LOGERR("Invalid command, expected the format: ID;VALUE");
         return;
     }
     my $geraet = getDatenpunkt($id, 1);
@@ -905,6 +1025,11 @@ sub parseInput($)
         $datatype eq "DPT_Bool" ||
         $datatype eq "DPT_Enable" ||
         $datatype eq "DPT_OpenClose") {
+        if ($data eq "true") {
+            $data = 1;
+        } elsif ($data eq "false") {
+            $data = 0;
+        }
         if ($data < 0 || $data > 1) {
             LOGERR("Invalid input!");
             return;
@@ -1121,6 +1246,7 @@ sub to_pdt_date($)
     my $day = $d[0];
     my $mon = $d[1];
     my $year = $d[2];
+    if ($year >= 2000) { $year = $year % 2000 } else { $year = $year % 1900 }
     if ($day < 0 || $day > 31) {
         LOGERR("Invalid day: $day");
         return -1;
