@@ -72,7 +72,12 @@ if ($R::saveformdata1) {
         $cfg->param("multicast_ip", $miniservers{$R::ms}{IPAddress});
         $cfg->param("multicast_port", "$R::msudpport");
         $cfg->param("dp_log", "$R::dplog");
-        $cfg->param("output", "data");
+        if ($R::tcp_udp) {
+            $cfg->param("output", "data");
+        } else {
+            $cfg->param("output", "none");
+        }
+        $cfg->param("mqtt", "$R::mqtt");
 
         $cfg->save();
 
@@ -138,6 +143,28 @@ if ($R::form eq "1" || !$R::form) {
         -default => $cfg->param('dp_log'),
     );
   $template->param( DP_LOG => $dplog );
+
+  my $tcp_udp_state = 0;
+  if ($cfg->param('output') eq "data") {
+      $tcp_udp_state = 1;
+  }
+  my $tcp_udp = $cgi->popup_menu(
+        -name    => 'tcp_udp',
+        -id      => 'tcp_udp',
+        -values  => \@values,
+        -labels  => \%labels,
+        -default => $tcp_udp_state,
+    );
+  $template->param( TCP_UDP => $tcp_udp );
+
+  my $mqtt = $cgi->popup_menu(
+        -name    => 'mqtt',
+        -id      => 'mqtt',
+        -values  => \@values,
+        -labels  => \%labels,
+        -default => $cfg->param('mqtt'),
+    );
+  $template->param( MQTT => $mqtt );
 
   # Protocol version
   @values = ('1.4', '1.5' );

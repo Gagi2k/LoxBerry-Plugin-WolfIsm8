@@ -175,22 +175,6 @@
                                 </td>
                         </tr>
 
-                        </tr>
-                                <td width="25%">
-                                        <label id="labelin"><TMPL_VAR SETTINGS.LABEL_INPORT></label>
-                                </td>
-                                <td width="50%">
-                                        <input id="inport" name="inport" type="text" data-validation-rule="special:number-min-max-value:1:65000" class="textfield" value="<TMPL_VAR input_port>"
-                                        data-validation-error-msg="<TMPL_VAR SETTINGS.ERR_PORT>">
-                                </td>
-                                <td width="5%" valign="middle">
-                                        &nbsp;
-                                </td>
-                                <td width="20%">
-                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_INPORT></font>
-                                </td>
-                        </tr>
-
                         <tr>
                                 <td width="25%">
                                         <label id="labellog"><TMPL_VAR SETTINGS.LABEL_DP_LOG></label>
@@ -210,10 +194,51 @@
 
                         <tr>
                                 <td colspan=3 width="75%" valign="middle">
-                                        <h2><TMPL_VAR SETTINGS.LABEL_MS></h2>
+                                        <h2><TMPL_VAR SETTINGS.LABEL_MQTT></h2>
                                 </td>
                                 <td align="right">
                                         &nbsp;
+                                </td>
+                        </tr>
+                        <tr>
+                                <td width="25%">
+                                        <label id="labellog"><TMPL_VAR SETTINGS.LABEL_MQTT></label>
+                                </td>
+                                <td width="50%">
+                                    <fieldset>
+                                    <TMPL_VAR MQTT>
+                                    </fieldset>
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_MQTT></font>
+                                </td>
+                        </tr>
+
+                        <tr>
+                                <td colspan=3 width="75%" valign="middle">
+                                        <h2><TMPL_VAR SETTINGS.LABEL_TCP_UDP></h2>
+                                </td>
+                                <td align="right">
+                                        &nbsp;
+                                </td>
+                        </tr>
+                        <tr>
+                                <td width="25%">
+                                        <label id="labellog"><TMPL_VAR SETTINGS.LABEL_TCP_UDP></label>
+                                </td>
+                                <td width="50%">
+                                    <fieldset>
+                                    <TMPL_VAR TCP_UDP>
+                                    </fieldset>
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_TCP_UDP></font>
                                 </td>
                         </tr>
                         <tr>
@@ -247,6 +272,21 @@
                                         <font size="-1"><TMPL_VAR SETTINGS.HINT_MS_UDPPORT></font>
                                 </td>
                         </tr>
+                        </tr>
+                                <td width="25%">
+                                        <label id="labelin"><TMPL_VAR SETTINGS.LABEL_INPORT></label>
+                                </td>
+                                <td width="50%">
+                                        <input id="inport" name="inport" type="text" data-validation-rule="special:number-min-max-value:1:65000" class="textfield" value="<TMPL_VAR input_port>"
+                                        data-validation-error-msg="<TMPL_VAR SETTINGS.ERR_PORT>">
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_INPORT></font>
+                                </td>
+                        </tr>
                         <tr>
                                 <td colspan=4>
                                 &nbsp;
@@ -273,6 +313,8 @@
 $('select[name=cron').attr('data-mini','true');
 $('#dplog').attr('data-role','flipswitch');
 $('#enable').attr('data-role','flipswitch');
+$('#tcp_udp').attr('data-role','flipswitch');
+$('#mqtt').attr('data-role','flipswitch');
 // Form Validation
 $( document ).ready(function()
 {

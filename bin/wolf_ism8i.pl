@@ -653,7 +653,9 @@ sub decodeTelegram($)
                         }
 
 			## Auswertung an Multicast Gruppe schicken ..
-			send_IGMPmessage($send_msg);
+                        if ($send_msg ne "") {
+                            send_IGMPmessage($send_msg);
+                        }
 
                         ## Auswertung an MQTT schicken ..
                         if ($hash{mqtt} eq '1') {
@@ -758,7 +760,7 @@ sub loadConfig
 		         if ($fields[1] =~ m/^(1|0)$/) {
 		            $hash{dplog} = $fields[1]; } else { $hash{dplog} = '0'; }
 		      } elsif ($fields[0] eq "output") {
-                         if ($fields[1] =~ m/^(csv|fhem|data)$/) {
+                         if ($fields[1] =~ m/^(csv|fhem|data|none)$/) {
 		            $hash{output} = $fields[1]; } else { $hash{dplog} = 'fhem'; }
                       } elsif ($fields[0] eq "mqtt") {
                          if ($fields[1] =~ m/^(1|0)$/) {
