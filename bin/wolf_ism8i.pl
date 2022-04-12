@@ -175,16 +175,16 @@ sub received_MQTT
 
     my $send_data = parseInput("$id;$message");
     if ($send_data) {
-        $SIG{ALRM} = sub
-        # Alarm timeout startet den Pull Request
-        {
-           LOGINF("Send Pull Request");
-           my $pull_request = createPullRequest();
-           if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
-        };
+#        $SIG{ALRM} = sub
+#        # Alarm timeout startet den Pull Request
+#        {
+#           LOGINF("Send Pull Request");
+#           my $pull_request = createPullRequest();
+#           if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
+#        };
         $wolf_client->send($send_data);
-        LOGINF("Start Pull Request Timer (5 seconds)");
-        alarm(5);
+#        LOGINF("Start Pull Request Timer (5 seconds)");
+#        alarm(5);
     } else {
         LOGINF("resetting MQTT to previous state: $id topic $topic: $value");
         publish_MQTT($id, $topic, $value);
@@ -426,16 +426,16 @@ sub read_command_messages($$) {
    LOGINF("Read command $rec_data");
    my $send_data = parseInput($rec_data);
    if ($send_data) {
-        $SIG{ALRM} = sub
-        # Alarm timeout startet den Pull Request
-        {
-           LOGINF("Send Pull Request");
-           my $pull_request = createPullRequest();
-           if (length($pull_request) > 0) { $ism8_socket->send($pull_request); }
-        };
+#        $SIG{ALRM} = sub
+#        # Alarm timeout startet den Pull Request
+#        {
+#           LOGINF("Send Pull Request");
+#           my $pull_request = createPullRequest();
+#           if (length($pull_request) > 0) { $ism8_socket->send($pull_request); }
+#        };
         $ism8_socket->send($send_data);
-        LOGINF("Start Pull Request Timer (5 seconds)");
-        alarm(5);
+#        LOGINF("Start Pull Request Timer (5 seconds)");
+#        alarm(5);
    }
 }
  
