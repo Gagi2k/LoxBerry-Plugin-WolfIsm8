@@ -1017,7 +1017,7 @@ sub parseInput($)
         return;
     }
 
-    LOGINF("VALUE: ".$data);
+    LOGDEB("VALUE: ".$data);
 
     my $enc_value;
 
@@ -1185,10 +1185,14 @@ sub pdt_time($)
    my $b3 = ($_[0] & 0x0000ff);
    my $weekday = ($b1  & 0xe0) >> 5;
    my @weekdays = ("","Mo","Di","Mi","Do","Fr","Sa","So");
+   my $day_str = "";
+   if ($weekday > 0) {
+       $day_str = $weekdays[$weekday]." ";
+   }
    my $hour = $b1 & 0x1f;
    my $min = $b2 & 0x3f;
    my $sec = $b3 & 0x3f;
-   return sprintf("%s %d:%d:%d", $weekdays[$weekday], $hour, $min, $sec);
+   return sprintf("%s%02d:%02d:%02d", $weekdays[$weekday], $hour, $min, $sec);
 }
 
 sub to_pdt_time($)
@@ -1202,10 +1206,6 @@ sub to_pdt_time($)
     my @weekdays = ("","Mo","Di","Mi","Do","Fr","Sa","So");
 
     $day = first_index { $_ eq $day } @weekdays;
-    if ($day == 0) {
-        LOGERR("Couldn't parse day. Possibe values: ".join(" ",@weekdays));
-        return -1;
-    }
     if ($hour < 0 || $hour > 23) {
         LOGERR("Invalid hour: $hour");
         return -1;
