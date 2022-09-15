@@ -20,6 +20,7 @@ use LoxBerry::Log;
 use strict;
 use warnings;
 use utf8;
+use Encode 'encode';
 use bignum;
 
 use IO::Socket::INET;
@@ -147,9 +148,9 @@ sub publish_MQTT($$$)
     my $topic = $_[1];
     my $value = $_[2];
     $mqtt_values{$topic} = [$id, $value];
-    LOGDEB("Saving state for topic $topic: $id: $value");
+    LOGDEB(encode('UTF-8', "Saving state for topic $topic: $id: $value"));
     if ($mqtt) {
-        LOGINF("publish Data: $id on MQTT topic $topic: $value");
+        LOGINF(encode('UTF-8', "publish Data: $id on MQTT topic $topic: $value"));
         $mqtt->retain($topic, $value);
     }
 }
@@ -157,7 +158,7 @@ sub publish_MQTT($$$)
 sub received_MQTT
 {
     my ($topic, $message, $retained) = @_;
-    LOGDEB("incoming MQTT message: $topic: $message retained: $retained");
+    LOGDEB(encode('UTF-8', "incoming MQTT message: $topic: $message retained: $retained"));
     if ($retained) {
         LOGDEB("Ignoring retained state...");
         return;
@@ -168,12 +169,12 @@ sub received_MQTT
     }
     my $id = $mqtt_values{$topic}[0];
     my $value = $mqtt_values{$topic}[1];
-    LOGDEB("Saved state for topic: $id: $value");
+    LOGDEB(encode('UTF-8', "Saved state for topic: $id: $value"));
     if ($value eq $message) {
         LOGDEB("Value didn't change. Ignoring...");
         return;
     }
-    LOGINF("received MQTT input ID: $id topic $topic: $message");
+    LOGINF(encode('UTF-8', "received MQTT input ID: $id topic $topic: $message"));
 
     my $send_data = parseInput("$id;$message");
     if ($send_data) {
@@ -182,7 +183,7 @@ sub received_MQTT
             startPullRequestTimer();
         }
     } else {
-        LOGINF("resetting MQTT to previous state: $id topic $topic: $value");
+        LOGINF(encode('UTF-8', "resetting MQTT to previous state: $id topic $topic: $value"));
         publish_MQTT($id, $topic, $value);
     }
 }
