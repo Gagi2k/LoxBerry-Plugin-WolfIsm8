@@ -160,8 +160,12 @@ sub publish_MQTT($$$)
 
 sub received_MQTT
 {
-    my ($topic, $message) = @_;
-    LOGDEB("incoming MQTT message: $topic: $message");
+    my ($topic, $message, $retained) = @_;
+    LOGDEB("incoming MQTT message: $topic: $message retained: $retained");
+    if ($retained) {
+        LOGDEB("Ignoring retained state...");
+        return;
+    }
     if (!exists $mqtt_values{$topic}) {
         LOGDEB("No Saved state for topic yet! Ignoring...");
         return;
