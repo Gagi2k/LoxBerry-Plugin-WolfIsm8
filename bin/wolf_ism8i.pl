@@ -85,14 +85,16 @@ my $mqtt;
 my %mqtt_values;
 my $wolf_client;
 my %hash = (
-             ism8i_ip => '?.?.?.?' ,
-             port     => '12004' ,
-             inport   => '12005' ,
-             fw       => '1.5' ,
-             mcip     => '239.7.7.77' ,
-             mcport   => '35353' ,
-             dplog    => '0' ,
-             output   => 'fhem' ,
+             ism8i_ip      => '?.?.?.?' ,
+             port          => '12004' ,
+             inport        => '12005' ,
+             fw            => '1.5' ,
+             mcip          => '239.7.7.77' ,
+             mcport        => '35353' ,
+             dplog         => '0' ,
+             output        => 'fhem' ,
+             mqtt          => '0' ,
+             pull_on_write => '0' ,
 			);
 
 # Version of this script
@@ -175,16 +177,10 @@ sub received_MQTT
 
     my $send_data = parseInput("$id;$message");
     if ($send_data) {
-#        $SIG{ALRM} = sub
-#        # Alarm timeout startet den Pull Request
-#        {
-#           LOGINF("Send Pull Request");
-#           my $pull_request = createPullRequest();
-#           if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
-#        };
         $wolf_client->send($send_data);
-#        LOGINF("Start Pull Request Timer (5 seconds)");
-#        alarm(5);
+        if ($hash{pull_on_write} eq '1') {
+            startPullRequestTimer();
+        }
     } else {
         LOGINF("resetting MQTT to previous state: $id topic $topic: $value");
         publish_MQTT($id, $topic, $value);
@@ -263,6 +259,19 @@ sub createRequest($$)
     LOGDEB(join(" ", unpack("H2" x length($request), $request)));
 
     return $request;
+}
+
+sub startPullRequestTimer()
+{
+    $SIG{ALRM} = sub # Alarm timeout startet den Pull Request
+    {
+       LOGINF("Send Pull Request");
+       my $pull_request = createPullRequest();
+       if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
+    };
+
+    LOGINF("Start Pull Request Timer (5 seconds)");
+    alarm(5);
 }
 
 sub createPullRequest()
@@ -426,16 +435,10 @@ sub read_command_messages($$) {
    LOGINF("Read command $rec_data");
    my $send_data = parseInput($rec_data);
    if ($send_data) {
-#        $SIG{ALRM} = sub
-#        # Alarm timeout startet den Pull Request
-#        {
-#           LOGINF("Send Pull Request");
-#           my $pull_request = createPullRequest();
-#           if (length($pull_request) > 0) { $ism8_socket->send($pull_request); }
-#        };
         $ism8_socket->send($send_data);
-#        LOGINF("Start Pull Request Timer (5 seconds)");
-#        alarm(5);
+        if ($hash{pull_on_write} eq '1') {
+            startPullRequestTimer();
+        }
    }
 }
  
@@ -765,6 +768,9 @@ sub loadConfig
                       } elsif ($fields[0] eq "mqtt") {
                          if ($fields[1] =~ m/^(1|0)$/) {
                             $hash{mqtt} = $fields[1]; } else { $hash{mqtt} = '0'; }
+                      } elsif ($fields[0] eq "pull_on_write") {
+                         if ($fields[1] =~ m/^(1|0)$/) {
+                            $hash{pull_on_write} = $fields[1]; } else { $hash{pull_on_write} = '0'; }
 	          }
 		   }	  
 	    }
@@ -812,11 +818,10 @@ sub loadConfig
 	 print $fh "dp_log $hash{dplog}\n";
 	 print $fh "output $hash{output}\n";
          print $fh "mqtt $hash{mqtt}\n";
+         print $fh "pull_on_write $hash{pull_on_write}\n";
 
      close $fh;
    }
-	
-   LOGINF("      [$hash{port}] [$hash{inport}] [$hash{fw}] [$hash{mcip}] [$hash{mcport}] [$hash{dplog}] [$hash{output}]");
 }
 
 

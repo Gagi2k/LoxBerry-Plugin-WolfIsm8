@@ -78,6 +78,7 @@ if ($R::saveformdata1) {
             $cfg->param("output", "none");
         }
         $cfg->param("mqtt", "$R::mqtt");
+        $cfg->param("pull_on_write", "$R::pull_on_write");
 
         $cfg->save();
 
@@ -165,6 +166,15 @@ if ($R::form eq "1" || !$R::form) {
         -default => $cfg->param('mqtt'),
     );
   $template->param( MQTT => $mqtt );
+
+  my $pull_on_write = $cgi->popup_menu(
+        -name    => 'pull_on_write',
+        -id      => 'pull_on_write',
+        -values  => \@values,
+        -labels  => \%labels,
+        -default => $cfg->param('pull_on_write'),
+    );
+  $template->param( PULL_ON_WRITE => $pull_on_write );
 
   # Protocol version
   @values = ('1.4', '1.5' );
