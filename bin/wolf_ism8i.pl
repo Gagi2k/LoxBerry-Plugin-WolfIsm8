@@ -146,10 +146,6 @@ sub publish_MQTT($$$)
     my $id = $_[0];
     my $topic = $_[1];
     my $value = $_[2];
-    if ($value eq $mqtt_values{$topic}[1]) {
-        LOGDEB("Value didn't change. Ignoring...");
-        return;
-    }
     $mqtt_values{$topic} = [$id, $value];
     LOGDEB("Saving state for topic $topic: $id: $value");
     if ($mqtt) {
