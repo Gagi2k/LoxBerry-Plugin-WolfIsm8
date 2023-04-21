@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use CGI;
+use Config::Simple;
 use LoxBerry::System;
 use LoxBerry::Web;
 use MIME::Base64;
