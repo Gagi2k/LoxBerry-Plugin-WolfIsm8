@@ -1,60 +1,60 @@
 ﻿#Datenpunkte Wolf ISM8i für Firmware 1.5
 #
-1;Heizgerät 1 (TOB,CGB-2,MGK-2);Störung;DPT_Switch;Out/-;-
-2;Heizgerät 1 (TOB,CGB-2,MGK-2);Betriebsart;DPT_HVACContrMode;Out/-;-
-3;Heizgerät 1 (TOB,CGB-2,MGK-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
-4;Heizgerät 1 (TOB,CGB-2,MGK-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
-5;Heizgerät 1 (TOB,CGB-2,MGK-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
-6;Heizgerät 1 (TOB,CGB-2,MGK-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
-7;Heizgerät 1 (TOB,CGB-2,MGK-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
-8;Heizgerät 1 (TOB,CGB-2,MGK-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
-9;Heizgerät 1 (TOB,CGB-2,MGK-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
-10;Heizgerät 1 (TOB,CGB-2,MGK-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
-11;Heizgerät 1 (TOB,CGB-2,MGK-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
-12;Heizgerät 1 (TOB,CGB-2,MGK-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
-13;Heizgerät 1 (TOB,CGB-2,MGK-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
+1;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Störung;DPT_Switch;Out/-;-
+2;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Betriebsart;DPT_HVACContrMode;Out/-;-
+3;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
+4;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
+5;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
+6;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
+7;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
+8;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
+9;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
+10;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
+11;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
+12;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
+13;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
 #
-14;Heizgerät 2 (TOB,CGB-2,MGK-2);Störung;DPT_Switch;Out/-;-
-15;Heizgerät 2 (TOB,CGB-2,MGK-2);Betriebsart;DPT_HVACContrMode;Out/-;-
-16;Heizgerät 2 (TOB,CGB-2,MGK-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
-17;Heizgerät 2 (TOB,CGB-2,MGK-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
-18;Heizgerät 2 (TOB,CGB-2,MGK-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
-19;Heizgerät 2 (TOB,CGB-2,MGK-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
-20;Heizgerät 2 (TOB,CGB-2,MGK-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
-21;Heizgerät 2 (TOB,CGB-2,MGK-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
-22;Heizgerät 2 (TOB,CGB-2,MGK-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
-23;Heizgerät 2 (TOB,CGB-2,MGK-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
-24;Heizgerät 2 (TOB,CGB-2,MGK-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
-25;Heizgerät 2 (TOB,CGB-2,MGK-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
-26;Heizgerät 2 (TOB,CGB-2,MGK-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
+14;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Störung;DPT_Switch;Out/-;-
+15;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Betriebsart;DPT_HVACContrMode;Out/-;-
+16;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
+17;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
+18;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
+19;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
+20;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
+21;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
+22;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
+23;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
+24;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
+25;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
+26;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
 #
-27;Heizgerät 3 (TOB,CGB-2,MGK-2);Störung;DPT_Switch;Out/-;-
-28;Heizgerät 3 (TOB,CGB-2,MGK-2);Betriebsart;DPT_HVACContrMode;Out/-;-
-29;Heizgerät 3 (TOB,CGB-2,MGK-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
-30;Heizgerät 3 (TOB,CGB-2,MGK-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
-31;Heizgerät 3 (TOB,CGB-2,MGK-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
-32;Heizgerät 3 (TOB,CGB-2,MGK-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
-33;Heizgerät 3 (TOB,CGB-2,MGK-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
-34;Heizgerät 3 (TOB,CGB-2,MGK-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
-35;Heizgerät 3 (TOB,CGB-2,MGK-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
-36;Heizgerät 3 (TOB,CGB-2,MGK-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
-37;Heizgerät 3 (TOB,CGB-2,MGK-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
-38;Heizgerät 3 (TOB,CGB-2,MGK-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
-39;Heizgerät 3 (TOB,CGB-2,MGK-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
+27;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Störung;DPT_Switch;Out/-;-
+28;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Betriebsart;DPT_HVACContrMode;Out/-;-
+29;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
+30;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
+31;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
+32;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
+33;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
+34;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
+35;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
+36;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
+37;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
+38;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
+39;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
 #
-40;Heizgerät 4 (TOB,CGB-2,MGK-2);Störung;DPT_Switch;Out/-;-
-41;Heizgerät 4 (TOB,CGB-2,MGK-2);Betriebsart;DPT_HVACContrMode;Out/-;-
-42;Heizgerät 4 (TOB,CGB-2,MGK-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
-43;Heizgerät 4 (TOB,CGB-2,MGK-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
-44;Heizgerät 4 (TOB,CGB-2,MGK-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
-45;Heizgerät 4 (TOB,CGB-2,MGK-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
-46;Heizgerät 4 (TOB,CGB-2,MGK-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
-47;Heizgerät 4 (TOB,CGB-2,MGK-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
-48;Heizgerät 4 (TOB,CGB-2,MGK-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
-49;Heizgerät 4 (TOB,CGB-2,MGK-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
-50;Heizgerät 4 (TOB,CGB-2,MGK-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
-51;Heizgerät 4 (TOB,CGB-2,MGK-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
-52;Heizgerät 4 (TOB,CGB-2,MGK-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
+40;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Störung;DPT_Switch;Out/-;-
+41;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Betriebsart;DPT_HVACContrMode;Out/-;-
+42;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Modulationsgrad / Brennerleistung;DPT_Scaling;Out/-;%
+43;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
+44;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
+45;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
+46;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
+47;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Außentemperatur;DPT_Value_Temp;Out/-;°C
+48;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Brenner / Flamme;DPT_Switch;Out/-;-
+49;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Heizkreispumpe;DPT_Switch;Out/-;-
+50;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status Speicherladepumpe;DPT_Switch;Out/-;-
+51;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Status 3-Wege-Umschaltventil;DPT_OpenClose;Out/-;-
+52;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Anlagendruck;DPT_Value_Pres;Out/-;Pa
 #
 53;Systembedienmodul;Störung;DPT_Switch;Out/-;-
 54;Systembedienmodul;Außentemperatur;DPT_Value_Temp;Out/-;°C
@@ -161,75 +161,72 @@
 146;Solarmodul;Durchfluss;DPT_Value_Volume_Flow;Out/-;l/h
 147;Solarmodul;aktuelle Leistung;DPT_Power;Out/-;kW
 #
-148;CWL Excellent;Störung;DPT_Switch;Out/-;-
-149;CWL Excellent;Programm;DPT_HVACMode;Out/In;-
-150;CWL Excellent;Zeitprogramm 1;DPT_Switch;Out/In;-
-151;CWL Excellent;Zeitprogramm 2;DPT_Switch;Out/In;-
-152;CWL Excellent;Zeitprogramm 3;DPT_Switch;Out/In;-
-153;CWL Excellent;Zeitweise Intensivlüftung AN/AUS;DPT_Switch;Out/In;-
-154;CWL Excellent;Zeitweise Intensivlüftung Startdatum;DPT_Date;Out/In;-
-155;CWL Excellent;Zeitweise Intensivlüftung Enddatum;DPT_Date;Out/In;-
-156;CWL Excellent;Zeitweise Intensivlüftung Startzeit;DPT_TimeOfDay;Out/In;-
-157;CWL Excellent;Zeitweise Intensivlüftung Endzeit;DPT_TimeOfDay;Out/In;-
-158;CWL Excellent;Zeitweiser Feuchteschutz AN/AUS;DPT_Switch;Out/In;-
-159;CWL Excellent;Zeitweiser Feuchteschutz Startdatum;DPT_Date;Out/In;-
-160;CWL Excellent;Zeitweiser Feuchteschutz Enddatum;DPT_Date;Out/In;-
-161;CWL Excellent;Zeitweiser Feuchteschutz Startzeit;DPT_TimeOfDay;Out/In;-
-162;CWL Excellent;Zeitweiser Feuchteschutz Endzeit;DPT_TimeOfDay;Out/In;-
-163;CWL Excellent;Lüftungsstufe;DPT_Scaling;Out/-;%
-164;CWL Excellent;Ablufttemperatur;DPT_Value_Temp;Out/-;°C
-165;CWL Excellent;Frischlufttemperatur;DPT_Value_Temp;Out/-;°C
-166;CWL Excellent;Luftdurchsatz Zuluft;DPT_FlowRate_m3/h;Out/-;m³/h
-167;CWL Excellent;Luftdurchsatz Abluft;DPT_FlowRate_m3/h;Out/-;m³/h
-168;CWL Excellent;Bypass Initialisierung;DPT_Bool;Out/-;-
-169;CWL Excellent;Bypass öffnet/offen;DPT_Bool;Out/-;-
-170;CWL Excellent;Bypass schließt/geschlossen;DPT_Bool;Out/-;-
-171;CWL Excellent;Bypass Fehler;DPT_Bool;Out/-;-
-172;CWL Excellent;Frost Status: Initialisierung/Warte;DPT_Bool;Out/-;-
-173;CWL Excellent;Frost Status: Kein Frost;DPT_Bool;Out/-;-
-174;CWL Excellent;Frost Status: Vorwärmer;DPT_Bool;Out/-;-
-175;CWL Excellent;Frost Status: Fehler/Unausgeglichen;DPT_Bool;Out/-;-
+148;Lüftung (CWL Excellent, CWL 2);Störung;DPT_Switch;Out/-;-
+149;Lüftung (CWL Excellent, CWL 2);Programm;DPT_HVACMode;Out/In;-
+150;Lüftung (CWL Excellent, CWL 2);Zeitprogramm 1;DPT_Switch;Out/In;-
+151;Lüftung (CWL Excellent, CWL 2);Zeitprogramm 2;DPT_Switch;Out/In;-
+152;Lüftung (CWL Excellent, CWL 2);Zeitprogramm 3;DPT_Switch;Out/In;-
+153;Lüftung (CWL Excellent, CWL 2);Zeitweise Intensivlüftung AN/AUS;DPT_Switch;Out/In;-
+154;Lüftung (CWL Excellent, CWL 2);Zeitweise Intensivlüftung Startdatum;DPT_Date;Out/In;-
+155;Lüftung (CWL Excellent, CWL 2);Zeitweise Intensivlüftung Enddatum;DPT_Date;Out/In;-
+156;Lüftung (CWL Excellent, CWL 2);Zeitweise Intensivlüftung Startzeit;DPT_TimeOfDay;Out/In;-
+157;Lüftung (CWL Excellent, CWL 2);Zeitweise Intensivlüftung Endzeit;DPT_TimeOfDay;Out/In;-
+158;Lüftung (CWL Excellent, CWL 2);Zeitweiser Feuchteschutz AN/AUS;DPT_Switch;Out/In;-
+159;Lüftung (CWL Excellent, CWL 2);Zeitweiser Feuchteschutz Startdatum;DPT_Date;Out/In;-
+160;Lüftung (CWL Excellent, CWL 2);Zeitweiser Feuchteschutz Enddatum;DPT_Date;Out/In;-
+161;Lüftung (CWL Excellent, CWL 2);Zeitweiser Feuchteschutz Startzeit;DPT_TimeOfDay;Out/In;-
+162;Lüftung (CWL Excellent, CWL 2);Zeitweiser Feuchteschutz Endzeit;DPT_TimeOfDay;Out/In;-
+163;Lüftung (CWL Excellent, CWL 2);Lüftungsstufe;DPT_Scaling;Out/-;%
+164;Lüftung (CWL Excellent, CWL 2);Ablufttemperatur;DPT_Value_Temp;Out/-;°C
+165;Lüftung (CWL Excellent, CWL 2);Frischlufttemperatur;DPT_Value_Temp;Out/-;°C
+166;Lüftung (CWL Excellent, CWL 2);Luftdurchsatz Zuluft;DPT_FlowRate_m3/h;Out/-;m³/h
+167;Lüftung (CWL Excellent, CWL 2);Luftdurchsatz Abluft;DPT_FlowRate_m3/h;Out/-;m³/h
+168;Lüftung (CWL Excellent, CWL 2);Bypass Initialisierung;DPT_Bool;Out/-;-
+169;Lüftung (CWL Excellent, CWL 2);Bypass öffnet/offen;DPT_Bool;Out/-;-
+170;Lüftung (CWL Excellent, CWL 2);Bypass schließt/geschlossen;DPT_Bool;Out/-;-
+171;Lüftung (CWL Excellent, CWL 2);Bypass Fehler;DPT_Bool;Out/-;-
+172;Lüftung (CWL Excellent, CWL 2);Frost Status: Initialisierung/Warte;DPT_Bool;Out/-;-
+173;Lüftung (CWL Excellent, CWL 2);Frost Status: Kein Frost;DPT_Bool;Out/-;-
+174;Lüftung (CWL Excellent, CWL 2);Frost Status: Vorwärmer;DPT_Bool;Out/-;-
+175;Lüftung (CWL Excellent, CWL 2);Frost Status: Fehler/Unausgeglichen;DPT_Bool;Out/-;-
 #
-176;Heizgerät 1 (BWL-1-S);Störung;DPT_Switch;Out/-;-
-177;Heizgerät 1 (BWL-1-S);Betriebsart;DPT_HVACContrMode;Out/-;-
-178;Heizgerät 1 (BWL-1-S);Heizleistung;DPT_Power;Out/-;kW
-179;Heizgerät 1 (BWL-1-S);Kühlleistung;DPT_Power;Out/-;kW
-180;Heizgerät 1 (BWL-1-S);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
-181;Heizgerät 1 (BWL-1-S);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
-182;Heizgerät 1 (BWL-1-S);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
-183;Heizgerät 1 (BWL-1-S);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
-184;Heizgerät 1 (BWL-1-S);Außentemperatur;DPT_Value_Temp;Out/-;°C
-185;Heizgerät 1 (BWL-1-S);Status Heizkreispumpe;DPT_Switch;Out/-;-
-186;Heizgerät 1 (BWL-1-S);Status Zubringer-/Heizkreispumpe;DPT_Switch;Out/-;-
-187;Heizgerät 1 (BWL-1-S);Status 3-Wege-Umschaltventil HZ/WW;DPT_OpenClose;Out/-;-
-188;Heizgerät 1 (BWL-1-S);Status 3-Wege-Umschaltventil HZ/K;DPT_OpenClose;Out/-;-
-189;Heizgerät 1 (BWL-1-S);Status E-Heizung;DPT_Switch;Out/-;-
-190;Heizgerät 1 (BWL-1-S);Anlagendruck;DPT_Value_Pres;Out/-;Pa
-191;Heizgerät 1 (BWL-1-S);Leistungsaufnahme;DPT_Power;Out/-;kW
+176;Heizgerät 1 (BWL-1-S, CHA);Störung;DPT_Switch;Out/-;-
+177;Heizgerät 1 (BWL-1-S, CHA);Betriebsart;DPT_HVACContrMode;Out/-;-
+178;Heizgerät 1 (BWL-1-S, CHA);Heizleistung;DPT_Power;Out/-;kW
+179;Heizgerät 1 (BWL-1-S, CHA);Kühlleistung;DPT_Power;Out/-;kW
+180;Heizgerät 1 (BWL-1-S, CHA);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
+181;Heizgerät 1 (BWL-1-S, CHA);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
+182;Heizgerät 1 (BWL-1-S, CHA);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
+183;Heizgerät 1 (BWL-1-S, CHA);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
+184;Heizgerät 1 (BWL-1-S, CHA);Außentemperatur;DPT_Value_Temp;Out/-;°C
+185;Heizgerät 1 (BWL-1-S, CHA);Status Heizkreispumpe;DPT_Switch;Out/-;-
+186;Heizgerät 1 (BWL-1-S, CHA);Status Zubringer-/Heizkreispumpe;DPT_Switch;Out/-;-
+187;Heizgerät 1 (BWL-1-S, CHA);Status 3-Wege-Umschaltventil HZ/WW;DPT_OpenClose;Out/-;-
+188;Heizgerät 1 (BWL-1-S, CHA);Status 3-Wege-Umschaltventil HZ/K;DPT_OpenClose;Out/-;-
+189;Heizgerät 1 (BWL-1-S, CHA);Status E-Heizung;DPT_Switch;Out/-;-
+190;Heizgerät 1 (BWL-1-S, CHA);Anlagendruck;DPT_Value_Pres;Out/-;Pa
+191;Heizgerät 1 (BWL-1-S, CHA);Leistungsaufnahme;DPT_Power;Out/-;kW
 #
-192;CWL Excellent;Filterwarnung aktiv;DPT_Switch;Out/-;-
-193;CWL Excellent;Filterwarnung zurücksetzen;DPT_Switch;Out/In;-
+192;Lüftung (CWL Excellent, CWL 2);Filterwarnung aktiv;DPT_Switch;Out/-;-
+193;Lüftung (CWL Excellent, CWL 2);Filterwarnung zurücksetzen;DPT_Switch;Out/In;-
 #
 194;Systembedienmodul;1x Warmwasserladung (gobal);DPT_Switch;Out/In;-
 #
 195;Solarmodul;Tagesertrag;DPT_ActiveEnergy;Out/-;Wh
 196;Solarmodul;Gesamtertrag;DPT_ActiveEnergy_kWh;Out/-;kWh
 #
-197;Heizgerät 1 (TOB,CGB-2,MGK-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
-198;Heizgerät 1 (TOB,CGB-2,MGK-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
-199;Heizgerät 1 (TOB,CGB-2,MGK-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
+197;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
+198;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
+199;Heizgerät 1 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
 #
-200;Heizgerät 2 (TOB,CGB-2,MGK-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
-201;Heizgerät 2 (TOB,CGB-2,MGK-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
-202;Heizgerät 2 (TOB,CGB-2,MGK-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
+200;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
+201;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
+202;Heizgerät 2 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
 #
-203;Heizgerät 3 (TOB,CGB-2,MGK-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
-204;Heizgerät 3 (TOB,CGB-2,MGK-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
-205;Heizgerät 3 (TOB,CGB-2,MGK-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
+203;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
+204;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
+205;Heizgerät 3 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
 #
-206;Heizgerät 4 (TOB,CGB-2,MGK-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
-207;Heizgerät 4 (TOB,CGB-2,MGK-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
-208;Heizgerät 4 (TOB,CGB-2,MGK-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
-#
-209;Kaskadenmodul;Gesamtmodulationsgradvorgabe;DPT_Scaling;Out/In;%
-210;Kaskadenmodul;Sammlersolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
+206;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Abgastemperatur;DPT_Value_Temp;Out/-;°C
+207;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Leistungsvorgabe;DPT_Scaling;Out/In;%
+208;Heizgerät 4 (TOB,CGB-2,MGK-2,COB-2,TGB-2);Kesselsolltemperaturvorgabe;DPT_Value_Temp;Out/In;°C
