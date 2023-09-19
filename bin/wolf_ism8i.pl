@@ -89,7 +89,7 @@ my %hash = (
              ism8i_ip      => '?.?.?.?' ,
              port          => '12004' ,
              inport        => '12005' ,
-             fw            => '1.5' ,
+             fw            => '1.8' ,
              mcip          => '239.7.7.77' ,
              mcport        => '35353' ,
              dplog         => '0' ,
@@ -670,7 +670,7 @@ sub decodeTelegram($)
                              my @types = ("DPT_Scaling","DPT_Value_Temp","DPT_Value_Tempd","DPT_Value_Pres",
                                         "DPT_Power","DPT_Value_Volume_Flow","DPT_TimeOfDay",
                                         "DPT_Date","DPT_FlowRate_m3/h","DPT_ActiveEnergy",
-                                        "DPT_ActiveEnergy_kWh" );
+                                        "DPT_ActiveEnergy_kWh","DPT_Value_1_Ucount", "DPT_Value_2_Ucount" );
                              my $datatype = getDatenpunkt($DP_ID, 3);
                              my $value;
                              if (grep( /^$datatype$/, @types )) {
@@ -752,8 +752,7 @@ sub loadConfig
                                 $hash{inport} = $fields[1]; } else { $hash{inport} = '12005'; }
                       } elsif ($fields[0] eq "fw_version") {
 		         if ($fields[1] =~ m/^\d{1}\.\d{1}$/) {
-		         $hash{fw} = $fields[1]; } else { $hash{fw} = '1.5'; }
-			     if ($hash{fw} ne '1.4') { $hash{fw} = '1.5'; }
+                         $hash{fw} = $fields[1]; } else { $hash{fw} = '1.8'; }
 		      } elsif ($fields[0] eq "multicast_ip") {
      		     if ($fields[1] =~ m/^(?:(?:\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/) {
 		         $hash{mcip} = $fields[1]; } else { $hash{mcip} = '239.7.7.77'; }
@@ -794,8 +793,8 @@ sub loadConfig
      print $fh "#   input_port = Port auf dem das Modul auf den TCP Trafic des Loxone Miniservers hört.\n";
      print $fh "#                Default ist 12005.\n";
      print $fh "#   fw_version = Die Firmware Version des Wolf ISM8i Schnittstellenmoduls. Diese steht im Webinterface des Schnittstellenmoduls.\n";
-     print $fh "#                Möglich sind 1.4 oder 1.5\n";
-     print $fh "#                Default ist 1.5\n";
+     print $fh "#                Möglich sind: 1.4 1.5 1.7 1.8\n";
+     print $fh "#                Default ist 1.8\n";
      print $fh "#   multicast_ip = die IPv4 Adresse der Multicast Gruppe an der die die entschlüsselten Datagramme geschickt werden. Default ist\n";
      print $fh "#                  Bitte beim Ändern auf die Vorgaben für Multicast Adressen achten!\n";
      print $fh "#                  Default ist 239.7.7.77.\n";
@@ -924,6 +923,14 @@ sub getCsvResult($$)
      {
           $result .= round(($dp_val & 0xff) * 100 / 255).";%";
 	 }
+   elsif ($datatype eq "DPT_Value_1_Ucount")
+     {
+          $result .= ($dp_val & 0xff);
+         }
+   elsif ($datatype eq "DPT_Value_2_Ucount")
+     {
+          $result .= $dp_val;
+         }
    elsif ($datatype eq "DPT_Value_Temp") 
      {
 	  $result .= pdt_knx_float($dp_val).";°C";

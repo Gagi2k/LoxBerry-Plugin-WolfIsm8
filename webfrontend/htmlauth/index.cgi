@@ -27,7 +27,7 @@ if (! defined $cfg->param('input_port')) {
     $cfg->param('input_port', 12005)
 }
 if (! defined $cfg->param('fw_version')) {
-    $cfg->param('fw_version', 1.5)
+    $cfg->param('fw_version', 1.8)
 }
 if (! defined $cfg->param('multicast_port')) {
     $cfg->param('multicast_port', 35353)
@@ -178,10 +178,12 @@ if ($R::form eq "1" || !$R::form) {
   $template->param( PULL_ON_WRITE => $pull_on_write );
 
   # Protocol version
-  @values = ('1.4', '1.5' );
+  @values = ('1.4', '1.5', '1.7', '1.8' );
   %labels = (
         '1.4' => '1.4',
         '1.5' => '1.5',
+        '1.7' => '1.7',
+        '1.8' => '1.8',
     );
   my $version = $cgi->popup_menu(
         -name    => 'version',
