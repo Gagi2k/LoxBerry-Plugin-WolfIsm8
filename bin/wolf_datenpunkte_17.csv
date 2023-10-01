@@ -151,7 +151,7 @@
 136;Solarmodul;Warmwassertemperatur Solar 1;DPT_Value_Temp;Out/-;°C
 137;Solarmodul;Temperatur Kollektor 1;DPT_Value_Temp;Out/-;°C
 138;Solarmodul;Eingang E1;DPT_Value_Temp;Out/-;°C
-139;Solarmodul;Eingang E2 (Durchfluss);DPT_Value_Volume_Flow;Out/-;l/h
+139;Solarmodul;Eingang E2 Durchfluss;DPT_Value_Volume_Flow;Out/-;l/h
 140;Solarmodul;Eingang E3;DPT_Value_Temp;Out/-;°C
 141;Solarmodul;Status Solarkreispumpe SKP1;DPT_Switch;Out/-;-
 142;Solarmodul;Status Ausgang A1;DPT_Enable;Out/-;-
@@ -190,27 +190,27 @@
 174;Lüftung (CWL Excellent, CWL 2);Frost Status: Vorwärmer;DPT_Bool;Out/-;-
 175;Lüftung (CWL Excellent, CWL 2);Frost Status: Fehler/Unausgeglichen;DPT_Bool;Out/-;-
 #
-176;Heizgerät 1 (BWL-1-S, CHA);Störung;DPT_Switch;Out/-;-
-177;Heizgerät 1 (BWL-1-S, CHA);Betriebsart;DPT_HVACContrMode;Out/-;-
-178;Heizgerät 1 (BWL-1-S, CHA);Heizleistung;DPT_Power;Out/-;kW
-179;Heizgerät 1 (BWL-1-S, CHA);Kühlleistung;DPT_Power;Out/-;kW
-180;Heizgerät 1 (BWL-1-S, CHA);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
-181;Heizgerät 1 (BWL-1-S, CHA);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
-182;Heizgerät 1 (BWL-1-S, CHA);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
-183;Heizgerät 1 (BWL-1-S, CHA);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
-184;Heizgerät 1 (BWL-1-S, CHA);Außentemperatur;DPT_Value_Temp;Out/-;°C
-185;Heizgerät 1 (BWL-1-S, CHA);Status Heizkreispumpe;DPT_Switch;Out/-;-
-186;Heizgerät 1 (BWL-1-S, CHA);Status Zubringer-/Heizkreispumpe;DPT_Switch;Out/-;-
-187;Heizgerät 1 (BWL-1-S, CHA);Status 3-Wege-Umschaltventil HZ/WW;DPT_OpenClose;Out/-;-
-188;Heizgerät 1 (BWL-1-S, CHA);Status 3-Wege-Umschaltventil HZ/K;DPT_OpenClose;Out/-;-
-189;Heizgerät 1 (BWL-1-S, CHA);Status E-Heizung;DPT_Switch;Out/-;-
-190;Heizgerät 1 (BWL-1-S, CHA);Anlagendruck;DPT_Value_Pres;Out/-;Pa
-191;Heizgerät 1 (BWL-1-S, CHA);Leistungsaufnahme;DPT_Power;Out/-;kW
+176;Heizgerät 1A (BWL-1-S, CHA);Störung;DPT_Switch;Out/-;-
+177;Heizgerät 1A (BWL-1-S, CHA);Betriebsart;DPT_HVACContrMode;Out/-;-
+178;Heizgerät 1A (BWL-1-S, CHA);Heizleistung;DPT_Power;Out/-;kW
+179;Heizgerät 1A (BWL-1-S, CHA);Kühlleistung;DPT_Power;Out/-;kW
+180;Heizgerät 1A (BWL-1-S, CHA);Kesseltemperatur;DPT_Value_Temp;Out/-;°C
+181;Heizgerät 1A (BWL-1-S, CHA);Sammlertemperatur;DPT_Value_Temp;Out/-;°C
+182;Heizgerät 1A (BWL-1-S, CHA);Rücklauftemperatur;DPT_Value_Temp;Out/-;°C
+183;Heizgerät 1A (BWL-1-S, CHA);Warmwassertemperatur;DPT_Value_Temp;Out/-;°C
+184;Heizgerät 1A (BWL-1-S, CHA);Außentemperatur;DPT_Value_Temp;Out/-;°C
+185;Heizgerät 1A (BWL-1-S, CHA);Status Heizkreispumpe;DPT_Switch;Out/-;-
+186;Heizgerät 1A (BWL-1-S, CHA);Status Zubringer-/Heizkreispumpe;DPT_Switch;Out/-;-
+187;Heizgerät 1A (BWL-1-S, CHA);Status 3-Wege-Umschaltventil HZ/WW;DPT_OpenClose;Out/-;-
+188;Heizgerät 1A (BWL-1-S, CHA);Status 3-Wege-Umschaltventil HZ/K;DPT_OpenClose;Out/-;-
+189;Heizgerät 1A (BWL-1-S, CHA);Status E-Heizung;DPT_Switch;Out/-;-
+190;Heizgerät 1A (BWL-1-S, CHA);Anlagendruck;DPT_Value_Pres;Out/-;Pa
+191;Heizgerät 1A (BWL-1-S, CHA);Leistungsaufnahme;DPT_Power;Out/-;kW
 #
 192;Lüftung (CWL Excellent, CWL 2);Filterwarnung aktiv;DPT_Switch;Out/-;-
 193;Lüftung (CWL Excellent, CWL 2);Filterwarnung zurücksetzen;DPT_Switch;Out/In;-
 #
-194;Systembedienmodul;1x Warmwasserladung (gobal);DPT_Switch;Out/In;-
+194;Systembedienmodul;1x Warmwasserladung gobal;DPT_Switch;Out/In;-
 #
 195;Solarmodul;Tagesertrag;DPT_ActiveEnergy;Out/-;Wh
 196;Solarmodul;Gesamtertrag;DPT_ActiveEnergy_kWh;Out/-;kWh
@@ -238,8 +238,8 @@
 251;Bedienmodul (BM-2);Erkennung verfügbare Heiz-/Mischerkreise;DPT_Value_1_Ucount;Out/-;-
 355;Bedienmodul (BM-2);Erkennung verfügbarer Geräte 1;DPT_Value_2_Ucount;Out/-;-
 356;Bedienmodul (BM-2);Erkennung verfügbarer Geräte 2;DPT_Value_2_Ucount;Out/-;-
-357;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp (HG1);DPT_Value_1_Ucount;Out/-;-
+357;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp HG1;DPT_Value_1_Ucount;Out/-;-
 358;Bedienmodul (BM-2);Erkennung vorhandener Warmwasserkreise;DPT_Value_1_Ucount;Out/-;-
-359;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp (HG2);DPT_Value_1_Ucount;Out/-;-
-360;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp (HG3);DPT_Value_1_Ucount;Out/-;-
-361;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp (HG4);DPT_Value_1_Ucount;Out/-;-
+359;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp HG2;DPT_Value_1_Ucount;Out/-;-
+360;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp HG3;DPT_Value_1_Ucount;Out/-;-
+361;Bedienmodul (BM-2);Unterscheidung Heizgerätetyp HG4;DPT_Value_1_Ucount;Out/-;-

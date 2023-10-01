@@ -174,6 +174,11 @@ sub received_MQTT
         LOGDEB("Value didn't change. Ignoring...");
         return;
     }
+    if ($message eq "") {
+        LOGDEB("Empty Message, clearing State");
+        delete $mqtt_values{$topic};
+        return;
+    }
     LOGINF(encode('UTF-8', "received MQTT input ID: $id topic $topic: $message"));
 
     my $send_data = parseInput("$id;$message");
@@ -189,20 +194,31 @@ sub received_MQTT
 }
 
 sub getMQTTFriendly($)
-#Ersetzt alle Zeichen so, dass das Ergebnis als FHEM Reading Name taugt.
+#Ersetzt alle Zeichen so, dass das Ergebnis als MQTT Topic taugt.
 {
     my $working_string = shift;
+
+    # Alles nach einem Klammer Anfang wird verworfen
+    $working_string =~ s/\(.*//;
+
+    # Alles nach einem + wird verworfen
+    $working_string =~ s/\+.*//;
+
+    # Leerzeichen am Ende wird verworfen
+    $working_string =~ s/\s+$//;
+
     my @tbr = ("/", "_");
 
     for (my $i=0; $i <= scalar(@tbr)-1; $i+=2)
-      {
-       my $f = $tbr[$i];
-       if ($working_string =~ /$f/)
-          {
-           my $r = $tbr[$i+1];
-               $working_string =~ s/$f/$r/g;
-              }
-       }
+    {
+        my $f = $tbr[$i];
+        if ($working_string =~ /$f/)
+        {
+            my $r = $tbr[$i+1];
+            $working_string =~ s/$f/$r/g;
+        }
+    }
+
     return $working_string;
 }
 
@@ -665,7 +681,7 @@ sub decodeTelegram($)
                         if ($hash{mqtt} eq '1') {
                              # wolfism8/Geraet/Datenpunkt
                              my $topic = "wolfism8/".getMQTTFriendly($fields[2])."/".getMQTTFriendly($fields[3]);
-                             if (scalar(@fields) == 6) { $topic .= "/".getMQTTFriendly($fields[5]); } # Einheit (wenn vorhanden)
+                             #if (scalar(@fields) == 6) { $topic .= "/".getMQTTFriendly($fields[5]); } # Einheit (wenn vorhanden)
 
                              my @types = ("DPT_Scaling","DPT_Value_Temp","DPT_Value_Tempd","DPT_Value_Pres",
                                         "DPT_Power","DPT_Value_Volume_Flow","DPT_TimeOfDay",
