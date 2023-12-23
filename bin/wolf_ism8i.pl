@@ -647,6 +647,11 @@ sub decodeTelegram($)
 			$last_auswertung = $auswertung;
 			 
 			my @fields = split(/;/, $auswertung); # [0]=Timestamp, [1]=DP ID, [2]=Geraet, [3]=Datenpunkt, [4]=Wert, optional [5]=Einheit
+
+                        if ($fields[2] =~ /^ERR/ or $fields[3] =~ /^ERR/) {
+                            LOGDEB("No Datapoint found for ID: $fields[1]. Ignoring");
+                            goto err;
+                        }
 			 
 			if ($hash{output} eq 'fhem') {
 			   ## Auswertung für FHEM erstellen ##
@@ -712,6 +717,7 @@ sub decodeTelegram($)
 			   send_IGMPmessage("ISM8i.999.Firmware $hash{fw}");
 			   $fw_actualize = time + 3600;
 			}	
+                    err:
 		 }
 		 $Position += 4 + $DP_length;
 	  }
@@ -989,9 +995,12 @@ sub getCsvResult($$)
 	 }
    elsif ($datatype eq "DPT_HVACMode") 
      {
-	  my @Heizkreis = ("Automatikbetrieb","Heizbetrieb","Standby","Sparbetrieb","-");
-
+          my @Heizkreis = ("Automatikbetrieb","Heizbetrieb","Standby","Sparbetrieb","-");
 	  my @CWL = ("Automatikbetrieb","Nennlüftung","-","Reduzierung Lüftung","-");
+          if ($hash{fw} eq '1.8') {
+            @Heizkreis = ("Automatikbetrieb","Heizbetrieb","Standby","Sparbetrieb","Permanent Kühlen");
+            @CWL = ("Automatikbetrieb","Nennlüftung","-","Reduzierung Lüftung","Feuchteschutz");
+          }
 	 
       if ($geraet =~ /Heizkreis/ or $geraet =~ /Mischerkreis/)
 	   	{ $v = $Heizkreis[$dp_val]; }
@@ -1010,11 +1019,11 @@ sub getCsvResult($$)
 	 }
    elsif ($datatype eq "DPT_HVACContrMode") 
      {
-	  my @CGB2_MGK2_TOB = ("Schornsteinferger","Heiz- Warmwasserbetrieb","-","-","-","-","Standby","Test","-","-","-","Frostschutz","-","-","-","Kalibration");
+          my @CGB2_MGK2_TOB = ("Schornsteinferger","Heiz- Warmwasserbetrieb","-","-","-","-","Standby","GLT","-","-","-","Frostschutz","-","-","-","Kalibration");
 
-      my @BWL1S = ("Antilegionellenfunktion","Heiz- Warmwasserbetrieb","Vorwärmung","Aktive Kühlung","-","-","Standby","Test","-","-","-","Frostschutz","-","-","-","-");
+          my @BWL1S = ("Antilegionellenfunktion","Heiz- Warmwasserbetrieb","Vorwärmung","Aktive Kühlung","-","-","Standby","GLT","-","-","-","Frostschutz","-","-","-","-");
 				   
-	  if ($geraet =~ /CGB-2/ or $geraet =~ /MGK-2/ or $geraet =~ /TOB/)
+          if ($geraet =~ /CGB-2/ or $geraet =~ /MGK-2/ or $geraet =~ /TOB/ or $geraet =~ /COB-2/ or $geraet =~ /TGB/)
 	    { $v = $CGB2_MGK2_TOB[$dp_val]; }
 	  elsif ($geraet =~ /BWL-1-S/)
 	   	{ $v = $BWL1S[$dp_val]; }
@@ -1096,7 +1105,7 @@ sub parseInput($)
     }
     elsif ($datatype eq "DPT_HVACMode")  {
         if ($geraet =~ /Heizkreis/ or $geraet =~ /Mischerkreis/) {
-            if ($data < 0 || $data > 3) {
+            if ($data < 0 || $data > 4) {
                 LOGERR("Invalid input!");
                 return;
             }
@@ -1114,7 +1123,7 @@ sub parseInput($)
     }
     elsif ($datatype eq "DPT_DHWMode") {
         if ($geraet =~ /Warmwasser/) {
-            if (!($data == 0 || $data == 2 || $data == 4)) {
+            if (!($data == 0 || $data == 2 || $data == 3 || $data == 4)) {
                 LOGERR("Invalid input!");
                 return;
             }
