@@ -6,6 +6,7 @@ use LoxBerry::System;
 use LoxBerry::Web;
 use MIME::Base64;
 use Encode qw(decode encode);
+use LoxBerry::LoxoneTemplateBuilder;
   
 # cgi
 my $cgi = CGI->new;
@@ -93,6 +94,100 @@ if ($R::saveformdata1) {
         &save;
 
         exit;
+}
+
+# Save Form 1
+if ($R::saveformdata2) {
+
+    $template->param( FORMNO => '2' );
+
+    my %parameters = $cgi->Vars;
+    my @parameter_values = values %parameters;
+    my @devices;
+    foreach $item (@parameter_values) {
+        push(@devices, decode('UTF-8',$item));
+    }
+
+    loadDatenpunkte();
+    my $ip = LoxBerry::System::get_localip();
+
+    # Get current date
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+    $year+=1900;
+
+    if (defined $R::download_input) {
+        my $port = $cfg->param('multicast_port');
+        my $VIudp = LoxBerry::LoxoneTemplateBuilder->VirtualInUdp(
+            Title => "Wolf ISM8",
+            Address => "$ip",
+            Port => "$port",
+            Comment => "Created by LoxBerry Wolf ISM8 Plugin ($mday.$mon.$year)",
+        );
+
+        my $count = scalar(@datenpunkte);
+
+        # Generate a temporary arroy for all virtual inputs
+        for ($i = 1; $i < $count; $i++) {
+            my $id = sprintf "%03d", $datenpunkte[$i][0];
+            my $device = $datenpunkte[$i][1];
+            my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+            if ($id == '000') {
+                next;
+            }
+
+            foreach $item (@devices) {
+                if ($item eq $device) {
+                    my $linenr = $VIudp->VirtualInUdpCmd (
+                        Title => "$name",
+                        Check => "$id;\\v",
+                    );
+                }
+            }
+        }
+
+        print ("Content-Type:application/x-download\n");
+        print "Content-Disposition: attachment; filename=wolf_udp_input.xml\n\n";
+        print HTML::Entities::decode_entities($VIudp->output);
+        exit
+
+    } elsif (defined $R::download_output) {
+        my $port = $cfg->param('input_port');
+        my $VO = LoxBerry::LoxoneTemplateBuilder->VirtualOut(
+            Title => "Wolf ISM8",
+            Address => "tcp://$ip:$port",
+            Comment => "Created by LoxBerry Wolf ISM8 Plugin ($mday.$mon.$year)",
+        );
+
+        my $count = scalar(@datenpunkte);
+
+        # Generate a temporary arroy for all virtual inputs
+        for ($i = 1; $i < $count; $i++) {
+            my $id = sprintf "%03d", $datenpunkte[$i][0];
+            my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+
+            if ($id == '000') {
+                next;
+            }
+
+            foreach $item (@devices) {
+                if ($item eq $device) {
+                        my $linenr = $VO->VirtualOutCmd (
+                            Title => $name,
+                            CmdOnMethod => "get",
+                            CmdOn => "$id;\\v",
+                            Analog => 1,
+                        );
+                }
+            }
+        }
+
+        print ("Content-Type:application/x-download\n");
+        print "Content-Disposition: attachment; filename=wolf_output.xml\n\n";
+        print HTML::Entities::decode_entities($VO->output);
+        exit
+    }
+
+    exit
 }
 
 #
@@ -215,62 +310,26 @@ if ($R::form eq "1" || !$R::form) {
   loadDatenpunkte();
 
   my @data = ();
+  my %seen   = ();
   my @digitalTypes = ("DPT_Switch","DPT_Bool","DPT_Enable","DPT_OpenClose");
   my $count = scalar(@datenpunkte);
 
   # Generate a temporary arroy for all virtual inputs
   for ($i = 1; $i < $count; $i++) {
       my %d;
-      $d{ID} = sprintf "%03d", $datenpunkte[$i][0];
-      $d{NAME} = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+      $d{NAME} = encode('UTF-8', $datenpunkte[$i][1]);
+      $d{INDEX} = $i;
+
+      if (!defined $datenpunkte[$i][0]) {
+        next;
+      }
+
+      next if $seen{ $d{NAME} }++;
 
       push(@data, \%d);
   }
-  my @sorted_data = sort { $a->{NAME} cmp $b->{NAME} } @data;
 
-  my $virtualinput = HTML::Template->new(
-          filename => "$lbptemplatedir/virtualinput.xml",
-          global_vars => 1,
-          loop_context_vars => 1,
-          die_on_bad_params => 0,
-          associate => $cfg,
-  );
-  $virtualinput->param("DATA" => \@sorted_data);
-
-  my $vixml = encode_base64($virtualinput->output);
-  my $url = "data:application/octet-stream;charset=utf-8;base64,$vixml";
-  $template->param('VI_HTTP_URL', $url);
-
-
-  my @out_data = ();
-  # Generate a temporary arroy for all virtual outputs
-  for ($i = 1; $i < $count; $i++) {
-      my %d;
-      if ($datenpunkte[$i][4] =~ m/In/) {
-          $d{ID} = $datenpunkte[$i][0];
-          $d{NAME} = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
-
-          push(@out_data, \%d);
-      }
-  }
-  my @sorted_out_data = sort { $a->{NAME} cmp $b->{NAME} } @out_data;
-
-  my $virtualoutput = HTML::Template->new(
-          filename => "$lbptemplatedir/virtualoutput.xml",
-          global_vars => 1,
-          loop_context_vars => 1,
-          die_on_bad_params => 0,
-          associate => $cfg,
-  );
-  $virtualoutput->param("DATA" => \@sorted_out_data);
-
-  my $ip = LoxBerry::System::get_localip();
-  my $port = $cfg->param("input_port");
-  $virtualoutput->param('ADDRESS', "tcp://$ip:$port");
-
-  my $voxml = encode_base64($virtualoutput->output);
-  my $url = "data:application/octet-stream;charset=utf-8;base64,$voxml";
-  $template->param('VO_HTTP_URL', $url);
+  $template->param(DEVICES => \@data);
 }
 
 

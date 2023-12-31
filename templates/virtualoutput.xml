@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<VirtualOut Title="Wolf ISM8" Comment="by Wolf ISM8 Loxbery Plugin" Address="<TMPL_VAR ADDRESS>" CmdInit="" CloseAfterSend="true" CmdSep=";">
-
-<TMPL_LOOP NAME=DATA>
-        <VirtualOutCmd Title="<TMPL_VAR NAME>" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="<TMPL_VAR ID>;<v>" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="0" RepeatRate="0"/>
-</TMPL_LOOP>
-
-</VirtualOut>
-

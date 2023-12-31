@@ -343,18 +343,26 @@ $( document ).ready(function()
 </TMPL_IF>
 
 <TMPL_IF FORM2>
+<form method="post" data-ajax="false" name="input_output_form" id="input_output_form" action="./index.cgi?form=2">
+        <input type="hidden" name="saveformdata2" value="1">
+        <div style="display: grid;grid-gap: 10px;grid-template-columns: 1fr 1fr 1fr;">
+            <TMPL_LOOP NAME=DEVICES>
+            <input type="checkbox" id="device<TMPL_VAR INDEX>" name="device<TMPL_VAR INDEX>" value="<TMPL_VAR NAME>"><label for="device<TMPL_VAR INDEX>"><TMPL_VAR NAME></label>
+            </TMPL_LOOP>
+        </div>
+<br><br>
+
+<p>
+&nbsp;
+</p>
+<p>
 <center>
-        <table border=0>
-        <tr>
-                <td align="center">
-                        <a download="input.xml" title="<TMPL_VAR SETTINGS.DOWNLOAD_INPUT>"
-                        data-role="button" href="<TMPL_VAR NAME="VI_HTTP_URL">"><TMPL_VAR SETTINGS.DOWNLOAD_INPUT></a>
-                        <a download="output.xml" title="<TMPL_VAR SETTINGS.DOWNLOAD_OUTPUT>"
-                        data-role="button" href="<TMPL_VAR NAME="VO_HTTP_URL">"><TMPL_VAR SETTINGS.DOWNLOAD_OUTPUT></a>
-                </td>
-        </tr>
-        </table>
+        <button type="submit" name="download_input" form="input_output_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check"><TMPL_VAR SETTINGS.DOWNLOAD_INPUT></button>
+        <button type="submit" name="download_output" form="input_output_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check"><TMPL_VAR SETTINGS.DOWNLOAD_OUTPUT></button>
 </center>
+</p>
+
+</form>
 </TMPL_IF>
 
 <TMPL_IF SAVE>
