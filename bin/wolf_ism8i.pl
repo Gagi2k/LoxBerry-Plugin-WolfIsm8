@@ -1111,7 +1111,7 @@ sub parseInput($)
             }
             $enc_value = pack("C", $data);
         } elsif ($geraet =~ /CWL/) {
-            if (!($data == 0 || $data == 1 || $data == 3)) {
+            if (!($data == 0 || $data == 1 || $data == 3 || $data == 4)) {
                 LOGERR("Invalid input!");
                 return;
             }
@@ -1123,7 +1123,7 @@ sub parseInput($)
     }
     elsif ($datatype eq "DPT_DHWMode") {
         if ($geraet =~ /Warmwasser/) {
-            if (!($data == 0 || $data == 2 || $data == 3 || $data == 4)) {
+            if (!($data == 0 || $data == 2 || $data == 4)) {
                 LOGERR("Invalid input!");
                 return;
             }
