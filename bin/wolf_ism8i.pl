@@ -692,16 +692,19 @@ sub decodeTelegram($)
                                         "DPT_Power","DPT_Value_Volume_Flow","DPT_TimeOfDay",
                                         "DPT_Date","DPT_FlowRate_m3/h","DPT_ActiveEnergy",
                                         "DPT_ActiveEnergy_kWh","DPT_Value_1_Ucount", "DPT_Value_2_Ucount" );
+                             my @bool_types = ("DPT_Switch","DPT_Bool","DPT_Enable","DPT_OpenClose");
                              my $datatype = getDatenpunkt($DP_ID, 3);
                              my $value;
                              if (grep( /^$datatype$/, @types )) {
                                 $value = $fields[4];
-                             } else {
+                             } elsif (grep( /^$datatype$/, @bool_types )) {
                                 if ($DP_value == 1) {
                                     $value = "true";
                                 } else {
                                     $value = "false";
                                 }
+                             } else {
+                                $value = $DP_value;
                              }
 
                              publish_MQTT($DP_ID, $topic, $value);
