@@ -207,6 +207,21 @@
                                         <font size="-1"><TMPL_VAR SETTINGS.HINT_PULL_ON_WRITE></font>
                                 </td>
                         </tr>
+                        <tr>
+                                <td width="25%">
+                                        <label id="labelpull"><TMPL_VAR SETTINGS.LABEL_ONLINE_TIMEOUT></label>
+                                </td>
+                                <td width="50%">
+                                    <input id="online_timeout" name="online_timeout" type="text" data-validation-rule="special:number-min-max-value:-1:65000" class="textfield" value="<TMPL_VAR ONLINE_TIMEOUT>"
+                                    data-validation-error-msg="<TMPL_VAR SETTINGS.ERR_ONLINE_TIMEOUT>">
+                                </td>
+                                <td width="5%" valign="middle">
+                                        &nbsp;
+                                </td>
+                                <td width="20%">
+                                        <font size="-1"><TMPL_VAR SETTINGS.HINT_ONLINE_TIMEOUT></font>
+                                </td>
+                        </tr>
 
                         <tr>
                                 <td colspan=3 width="75%" valign="middle">
@@ -338,6 +353,7 @@ $( document ).ready(function()
         validate_enable('#ism8port');
         validate_enable('#inport');
         validate_enable('#msudpport');
+        validate_enable('#online_timeout');
 });
 </script>
 </TMPL_IF>

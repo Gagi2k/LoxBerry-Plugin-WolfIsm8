@@ -84,18 +84,22 @@ my $last_auswertung = "";
 my $igmp_sock;
 my $mqtt;
 my %mqtt_values;
+my $online_state = 0;
 my $wolf_client;
+my $pull_request_timer = -1;
+my $online_reset_timer = -1;
 my %hash = (
-             ism8i_ip      => '?.?.?.?' ,
-             port          => '12004' ,
-             inport        => '12005' ,
-             fw            => '1.8' ,
-             mcip          => '239.7.7.77' ,
-             mcport        => '35353' ,
-             dplog         => '0' ,
-             output        => 'fhem' ,
-             mqtt          => '0' ,
-             pull_on_write => '0' ,
+             ism8i_ip       => '?.?.?.?' ,
+             port           => '12004' ,
+             inport         => '12005' ,
+             fw             => '1.8' ,
+             mcip           => '239.7.7.77' ,
+             mcport         => '35353' ,
+             dplog          => '0' ,
+             output         => 'fhem' ,
+             mqtt           => '0' ,
+             pull_on_write  => '0' ,
+             online_timeout => '-1' ,
 			);
 
 # Version of this script
@@ -136,6 +140,7 @@ sub connect_MQTT
 {
     if ($hash{mqtt} eq '1') {
         $mqtt = mqtt_connect();
+        $mqtt->last_will("wolfism8/online", "0");
         if ($mqtt) {
             $mqtt->subscribe("wolfism8/#", \&received_MQTT);
         }
@@ -222,6 +227,19 @@ sub getMQTTFriendly($)
     return $working_string;
 }
 
+sub send_OnlineState($)
+{
+    my $online = $_[0];
+    if ($online_state != $online) {
+        if ($hash{mqtt} eq '1') {
+            LOGINF("publish online state to MQTT topic wolfism8/online: $online");
+            $mqtt->publish('wolfism8/online', $online);
+        }
+        send_IGMPmessage("online;".$online);
+    }
+    $online_state = $online;
+}
+
 sub start_IGMPserver
 # Startet einen Multicast Server
 {
@@ -280,15 +298,8 @@ sub createRequest($$)
 
 sub startPullRequestTimer()
 {
-    $SIG{ALRM} = sub # Alarm timeout startet den Pull Request
-    {
-       LOGINF("Send Pull Request");
-       my $pull_request = createPullRequest();
-       if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
-    };
-
     LOGINF("Start Pull Request Timer (5 seconds)");
-    alarm(5);
+    $pull_request_timer = 5;
 }
 
 sub createPullRequest()
@@ -296,6 +307,13 @@ sub createPullRequest()
     my @a = ("06","20","F0","80","00","16","04","00","00","00","F0","D0");
     LOGDEB("Sende Pull Request: ".join(" ", @a));
     return pack("H2" x 17, @a);
+}
+
+sub sendPullRequest
+{
+    LOGINF("Send Pull Request");
+    my $pull_request = createPullRequest();
+    if (length($pull_request) > 0) { $wolf_client->send($pull_request); }
 }
 
 sub start_CommandServer()
@@ -330,7 +348,8 @@ sub start_WolfServer()
       LocalPort => $hash{port},
       Proto => 'tcp',
       Listen => 5,
-      Reuse => 1
+      Reuse => 1,
+      Timeout => 5,
    );
    die "Cannot create socket $!\n" unless $socket;
    LOGINF("Server wartet auf ISM8i Verbindung auf Port $hash{port}:");
@@ -348,6 +367,32 @@ sub start_event_loop($$) {
 
     $read_select->add($wolf_socket);
     $read_select->add($command_socket);
+
+    # Callback to start actions after x seconds
+    $SIG{ALRM} = sub
+    {
+        #LOGINF("TIMEOUT $pull_request_timer");
+
+        # Send Pull Request after x seconds
+        if ($pull_request_timer > 0) {
+            $pull_request_timer--;
+        } elsif ($pull_request_timer == 0) {
+            sendPullRequest();
+            $pull_request_timer = -1;
+        }
+
+        # Reset online state after x seconds
+        if ($online_reset_timer > 0) {
+            $online_reset_timer--;
+        } elsif ($online_reset_timer == 0) {
+            LOGWARN("Keine Daten innerhalb von $hash{online_timeout} Sekunden. ISM8 offline!");
+            send_OnlineState(0);
+            $online_reset_timer = -1;
+        }
+
+        alarm(1);
+    };
+    alarm(1);
 
     while (1) {
 
@@ -379,6 +424,7 @@ sub start_event_loop($$) {
 
                 if (read_wolf_messages($wolf_client)) {
                     $drop_counter = 0;
+                    send_OnlineState(1);
                 } else {
                     $drop_counter++;
                 }
@@ -387,6 +433,7 @@ sub start_event_loop($$) {
             if ($read == $wolf_client) {
                 if (read_wolf_messages($wolf_client)) {
                     $drop_counter = 0;
+                    send_OnlineState(1);
                 } else {
                     $drop_counter++;
                 }
@@ -399,6 +446,7 @@ sub start_event_loop($$) {
                 shutdown($wolf_client, 1);
                 $read_select->remove($wolf_client);
                 $wolf_client = undef;
+                send_OnlineState(0);
             }
 
             if ($read == $command_socket) {
@@ -490,6 +538,11 @@ sub read_wolf_messages($) {
             decodeTelegram($r);
           }
       }
+
+    # Start the online reset timeout
+    if ($hash{online_timeout} > 0) {
+        $online_reset_timer = $hash{online_timeout};
+    }
 
     return 1;
 }
@@ -796,6 +849,9 @@ sub loadConfig
                       } elsif ($fields[0] eq "pull_on_write") {
                          if ($fields[1] =~ m/^(1|0)$/) {
                             $hash{pull_on_write} = $fields[1]; } else { $hash{pull_on_write} = '0'; }
+                      } elsif ($fields[0] eq "online_timeout") {
+                      if ($fields[1] =~ m/^([0-9]*|-1)$/) {
+                         $hash{online_timeout} = $fields[1]; } else { $hash{online_timeout} = '-1'; }
 	          }
 		   }	  
 	    }
@@ -833,6 +889,9 @@ sub loadConfig
      print $fh "#            Möglich ist 'csv' für das CSV Format (mit Semikolon (;) separiert) z.B. zum Importieren in Tabekkenkalkulationen.\n";
      print $fh "#            Möglich ist 'fhem' als Spezialformat für das ISM8I Modul.\n";
      print $fh "#            Default ist 'fhem'\n";
+     print $fh "#   online_timeout = Wenn innerhalb von X Sekunden keine Daten mehr vom Modul geschickt werden, wird der online state resetet.\n";
+     print $fh "#                    -1 deaktiviert den periodischen online check.\n";
+     print $fh "#                    Default is -1.;\n";
      print $fh "######################################################################################################################################################\n\n";
 	 
 	 print $fh "ism8i_port $hash{port}\n";
@@ -844,6 +903,7 @@ sub loadConfig
 	 print $fh "output $hash{output}\n";
          print $fh "mqtt $hash{mqtt}\n";
          print $fh "pull_on_write $hash{pull_on_write}\n";
+         print $fh "online_timeout $hash{online_timeout}\n";
 
      close $fh;
    }

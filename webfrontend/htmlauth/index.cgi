@@ -36,6 +36,9 @@ if (! defined $cfg->param('multicast_port')) {
 if (! defined $cfg->param('dp_log')) {
     $cfg->param('dp_log', 0)
 }
+if (! defined $cfg->param('online_timeout')) {
+    $cfg->param('online_timeout', -1)
+}
 
 # Template
 my $templatefile = "$lbptemplatedir/index.html";
@@ -81,6 +84,7 @@ if ($R::saveformdata1) {
         }
         $cfg->param("mqtt", "$R::mqtt");
         $cfg->param("pull_on_write", "$R::pull_on_write");
+        $cfg->param("online_timeout", "$R::online_timeout");
 
         $cfg->save();
 
