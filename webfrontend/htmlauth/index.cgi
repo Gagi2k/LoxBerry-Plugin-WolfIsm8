@@ -136,12 +136,15 @@ if ($R::saveformdata2) {
 
         my $count = scalar(@datenpunkte);
 
-        # Generate a temporary arroy for all virtual inputs
         for ($i = 1; $i < $count; $i++) {
             my $id = sprintf "%03d", $datenpunkte[$i][0];
             my $device = $datenpunkte[$i][1];
             my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+            my $input_output = $datenpunkte[$i][4];
             if ($id == '000') {
+                next;
+            }
+            if (!($input_output =~ /Out/)) {
                 next;
             }
 
@@ -173,9 +176,14 @@ if ($R::saveformdata2) {
         # Generate a temporary arroy for all virtual inputs
         for ($i = 1; $i < $count; $i++) {
             my $id = sprintf "%03d", $datenpunkte[$i][0];
+            my $device = $datenpunkte[$i][1];
             my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+            my $input_output = $datenpunkte[$i][4];
 
             if ($id == '000') {
+                next;
+            }
+            if (!($input_output =~ /In/)) {
                 next;
             }
 
@@ -216,7 +224,11 @@ if ($R::saveformdata2) {
             my $device = $datenpunkte[$i][1];
             my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
             my $topic = encode('UTF-8', "wolfism8_".getMQTTFriendly($datenpunkte[$i][1])."_".getMQTTFriendly($datenpunkte[$i][2]));
+            my $input_output = $datenpunkte[$i][4];
             if ($id == '000') {
+                next;
+            }
+            if (!($input_output =~ /Out/)) {
                 next;
             }
 
@@ -224,7 +236,8 @@ if ($R::saveformdata2) {
                 if ($item eq $device) {
                     my $linenr = $VIhttp->VirtualInHttpCmd (
                         Title => "$topic",
-                        Comment => "$name"
+                        Comment => "$name",
+                        Check => " "
                     );
                 }
             }
@@ -248,12 +261,17 @@ if ($R::saveformdata2) {
         # Generate a temporary arroy for all virtual inputs
         for ($i = 1; $i < $count; $i++) {
             my $id = sprintf "%03d", $datenpunkte[$i][0];
+            my $device = $datenpunkte[$i][1];
             my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
             my $topic = encode('UTF-8', "wolfism8/".getMQTTFriendly($datenpunkte[$i][1])."/".getMQTTFriendly($datenpunkte[$i][2]));
             my $topic_name = $topic;
             $topic_name =~ s/\//_/g;
+            my $input_output = $datenpunkte[$i][4];
 
             if ($id == '000') {
+                next;
+            }
+            if (!($input_output =~ /In/)) {
                 next;
             }
 
@@ -262,7 +280,7 @@ if ($R::saveformdata2) {
                     my $linenr = $VO->VirtualOutCmd (
                         Title => "$topic_name",
                         Comment => "$name",
-                        CmdOn => "retain $topic \v",
+                        CmdOn => "retain $topic <v>",
                         Analog => 1,
                     );
                 }
