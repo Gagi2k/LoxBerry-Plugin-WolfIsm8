@@ -7,6 +7,7 @@ use LoxBerry::Web;
 use MIME::Base64;
 use Encode qw(decode encode);
 use LoxBerry::LoxoneTemplateBuilder;
+use LoxBerry::IO;
   
 # cgi
 my $cgi = CGI->new;
@@ -187,6 +188,79 @@ if ($R::saveformdata2) {
 
         print ("Content-Type:application/x-download\n");
         print "Content-Disposition: attachment; filename=wolf_output.xml\n\n";
+        print HTML::Entities::decode_entities($VO->output);
+        exit
+    } elsif (defined $R::download_input_mqtt) {
+        my $VIhttp = LoxBerry::LoxoneTemplateBuilder->VirtualInHttp(
+            Title => "Wolf ISM8 MQTT",
+            Address => "http://localhost",
+            PollingTime => "604800",
+            Comment => "Created by LoxBerry Wolf ISM8 Plugin ($mday.$mon.$year)",
+        );
+
+        my $count = scalar(@datenpunkte);
+
+        # Generate a temporary arroy for all virtual inputs
+        for ($i = 1; $i < $count; $i++) {
+            my $id = sprintf "%03d", $datenpunkte[$i][0];
+            my $device = $datenpunkte[$i][1];
+            my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+            my $topic = encode('UTF-8', "wolfism8_".getMQTTFriendly($datenpunkte[$i][1])."_".getMQTTFriendly($datenpunkte[$i][2]));
+            if ($id == '000') {
+                next;
+            }
+
+            foreach $item (@devices) {
+                if ($item eq $device) {
+                    my $linenr = $VIhttp->VirtualInHttpCmd (
+                        Title => "$topic",
+                        Comment => "$name"
+                    );
+                }
+            }
+        }
+
+        print ("Content-Type:application/x-download\n");
+        print "Content-Disposition: attachment; filename=wolf_mqtt_input.xml\n\n";
+        print HTML::Entities::decode_entities($VIhttp->output);
+        exit
+    } elsif (defined $R::download_output_mqtt) {
+        my $mqttcred = LoxBerry::IO::mqtt_connectiondetails();
+        my $port = $mqttcred->{udpinport};
+        my $VO = LoxBerry::LoxoneTemplateBuilder->VirtualOut(
+            Title => "Wolf ISM8 MQTT",
+            Address => "/dev/udp/$ip/$port",
+            Comment => "Created by LoxBerry Wolf ISM8 Plugin ($mday.$mon.$year)",
+        );
+
+        my $count = scalar(@datenpunkte);
+
+        # Generate a temporary arroy for all virtual inputs
+        for ($i = 1; $i < $count; $i++) {
+            my $id = sprintf "%03d", $datenpunkte[$i][0];
+            my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
+            my $topic = encode('UTF-8', "wolfism8/".getMQTTFriendly($datenpunkte[$i][1])."/".getMQTTFriendly($datenpunkte[$i][2]));
+            my $topic_name = $topic;
+            $topic_name =~ s/\//_/g;
+
+            if ($id == '000') {
+                next;
+            }
+
+            foreach $item (@devices) {
+                if ($item eq $device) {
+                    my $linenr = $VO->VirtualOutCmd (
+                        Title => "$topic_name",
+                        Comment => "$name",
+                        CmdOn => "retain $topic \v",
+                        Analog => 1,
+                    );
+                }
+            }
+        }
+
+        print ("Content-Type:application/x-download\n");
+        print "Content-Disposition: attachment; filename=wolf_mqtt_output.xml\n\n";
         print HTML::Entities::decode_entities($VO->output);
         exit
     }
@@ -373,6 +447,35 @@ sub loadDatenpunkte
 
 sub r_trim { my $s = shift; $s =~ s/\s+$//; return $s; }
 sub max($$) { $_[$_[0] < $_[1]]; }
+
+sub getMQTTFriendly($)
+#Ersetzt alle Zeichen so, dass das Ergebnis als MQTT Topic taugt.
+{
+    my $working_string = shift;
+
+    # Alles nach einem Klammer Anfang wird verworfen
+    $working_string =~ s/\(.*//;
+
+    # Alles nach einem + wird verworfen
+    $working_string =~ s/\+.*//;
+
+    # Leerzeichen am Ende wird verworfen
+    $working_string =~ s/\s+$//;
+
+    my @tbr = ("/", "_");
+
+    for (my $i=0; $i <= scalar(@tbr)-1; $i+=2)
+    {
+        my $f = $tbr[$i];
+        if ($working_string =~ /$f/)
+        {
+            my $r = $tbr[$i+1];
+            $working_string =~ s/$f/$r/g;
+        }
+    }
+
+    return $working_string;
+}
 
 
 #####################################################
