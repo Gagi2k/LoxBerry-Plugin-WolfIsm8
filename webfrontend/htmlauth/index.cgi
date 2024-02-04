@@ -129,6 +129,11 @@ if ($R::saveformdata2) {
             Comment => "Created by LoxBerry Wolf ISM8 Plugin ($mday.$mon.$year)",
         );
 
+        my $linenr = $VIudp->VirtualInUdpCmd (
+            Title => "Online",
+            Check => "online;\\v",
+        );
+
         my $count = scalar(@datenpunkte);
 
         # Generate a temporary arroy for all virtual inputs
@@ -196,6 +201,11 @@ if ($R::saveformdata2) {
             Address => "http://localhost",
             PollingTime => "604800",
             Comment => "Created by LoxBerry Wolf ISM8 Plugin ($mday.$mon.$year)",
+        );
+
+        my $linenr = $VIhttp->VirtualInHttpCmd (
+            Title => "wolfism8_online",
+            Comment => "ISM8 Online State"
         );
 
         my $count = scalar(@datenpunkte);
