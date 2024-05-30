@@ -213,7 +213,8 @@ if ($R::saveformdata2) {
 
         my $linenr = $VIhttp->VirtualInHttpCmd (
             Title => "wolfism8_online",
-            Comment => "ISM8 Online State"
+            Comment => "ISM8 Online State",
+            Check => " "
         );
 
         my $count = scalar(@datenpunkte);
@@ -223,12 +224,18 @@ if ($R::saveformdata2) {
             my $id = sprintf "%03d", $datenpunkte[$i][0];
             my $device = $datenpunkte[$i][1];
             my $name = encode('UTF-8', $datenpunkte[$i][1]." ".$datenpunkte[$i][2]);
-            my $topic = encode('UTF-8', "wolfism8_".getMQTTFriendly($datenpunkte[$i][1])."_".getMQTTFriendly($datenpunkte[$i][2]));
+            my $topic = encode('UTF-8', "wolfism8/".getMQTTFriendly($datenpunkte[$i][1])."/".getMQTTFriendly($datenpunkte[$i][2]));
+            $topic =~ s/\//_/g;
             my $input_output = $datenpunkte[$i][4];
             if ($id == '000') {
                 next;
             }
             if (!($input_output =~ /Out/)) {
+                next;
+            }
+            my $datatype = $datenpunkte[$i][3];
+            my @date_types = ("DPT_TimeOfDay","DPT_Date");
+            if (grep( /^$datatype$/, @date_types )) {
                 next;
             }
 
@@ -490,7 +497,7 @@ sub getMQTTFriendly($)
     # Leerzeichen am Ende wird verworfen
     $working_string =~ s/\s+$//;
 
-    my @tbr = ("/", "_");
+    my @tbr = ("/", "_", ":", "", " ", "/");
 
     for (my $i=0; $i <= scalar(@tbr)-1; $i+=2)
     {

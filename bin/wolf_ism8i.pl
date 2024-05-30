@@ -212,7 +212,7 @@ sub getMQTTFriendly($)
     # Leerzeichen am Ende wird verworfen
     $working_string =~ s/\s+$//;
 
-    my @tbr = ("/", "_");
+    my @tbr = ("/", "_", ":", "", " ", "/");
 
     for (my $i=0; $i <= scalar(@tbr)-1; $i+=2)
     {
@@ -742,10 +742,11 @@ sub decodeTelegram($)
                              #if (scalar(@fields) == 6) { $topic .= "/".getMQTTFriendly($fields[5]); } # Einheit (wenn vorhanden)
 
                              my @types = ("DPT_Scaling","DPT_Value_Temp","DPT_Value_Tempd","DPT_Value_Pres",
-                                        "DPT_Power","DPT_Value_Volume_Flow","DPT_TimeOfDay",
-                                        "DPT_Date","DPT_FlowRate_m3/h","DPT_ActiveEnergy",
+                                        "DPT_Power","DPT_Value_Volume_Flow",
+                                        ,"DPT_FlowRate_m3/h","DPT_ActiveEnergy",
                                         "DPT_ActiveEnergy_kWh","DPT_Value_1_Ucount", "DPT_Value_2_Ucount" );
                              my @bool_types = ("DPT_Switch","DPT_Bool","DPT_Enable","DPT_OpenClose");
+                             my @ignored_types = ("DPT_TimeOfDay","DPT_Date");
                              my $datatype = getDatenpunkt($DP_ID, 3);
                              my $value;
                              if (grep( /^$datatype$/, @types )) {
@@ -756,6 +757,8 @@ sub decodeTelegram($)
                                 } else {
                                     $value = "false";
                                 }
+                             } elsif (grep( /^$datatype$/, @ignored_types )) {
+                                goto err;
                              } else {
                                 $value = $DP_value;
                              }
