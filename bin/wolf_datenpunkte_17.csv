@@ -210,7 +210,7 @@
 192;Lüftung (CWL Excellent, CWL 2);Filterwarnung aktiv;DPT_Switch;Out/-;-
 193;Lüftung (CWL Excellent, CWL 2);Filterwarnung zurücksetzen;DPT_Switch;Out/In;-
 #
-194;Systembedienmodul;1x Warmwasserladung gobal;DPT_Switch;Out/In;-
+194;Systembedienmodul;1x Warmwasserladung global;DPT_Switch;Out/In;-
 #
 195;Solarmodul;Tagesertrag;DPT_ActiveEnergy;Out/-;Wh
 196;Solarmodul;Gesamtertrag;DPT_ActiveEnergy_kWh;Out/-;kWh
